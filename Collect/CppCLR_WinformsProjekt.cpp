@@ -8,6 +8,7 @@ using namespace System;
 //}
 
 #include "Form1.h"
+#include "Form_SingleLayer.h"
 
 using namespace System::Windows::Forms;
 
@@ -15,6 +16,6 @@ using namespace System::Windows::Forms;
 int main() {
 	Application::EnableVisualStyles();
 	Application::SetCompatibleTextRenderingDefault(false);
-	Application::Run(gcnew CppCLRWinformsProjekt::Form1()); 
+	Application::Run(gcnew CppCLRWinformsProjekt::Form_SingleLayer()); 
 	return 0;
 }
