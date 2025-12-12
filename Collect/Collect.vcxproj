@@ -146,7 +146,9 @@
     <ClInclude Include="Form1.h">
       <FileType>CppForm</FileType>
     </ClInclude>
+    <ClInclude Include="Form_MNIST.h" />
     <ClInclude Include="Form_MultiLayer.h" />
+    <ClInclude Include="Form_MultiLayerMomentum.h" />
     <ClInclude Include="Form_SingleLayer.h" />
     <ClInclude Include="network.h" />
     <ClInclude Include="pch.h" />

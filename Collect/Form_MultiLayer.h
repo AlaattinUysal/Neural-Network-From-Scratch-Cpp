@@ -594,7 +594,213 @@ private: System::Void testingToolStripMenuItem_Click(System::Object^ sender, Sys
 	}
 }
 	private: System::Void regressionToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
-		// Regression buraya gelecek
+		// 1. GÜVENLÝK
+		if (numSample < 2 || TotalLayers == 0) {
+			MessageBox::Show("Lütfen önce Aðý Kurun ve en az 2 nokta ekleyin.");
+			return;
+		}
+
+		// Regresyon için öðrenme hýzýný biraz artýralým (Daha hýzlý otursun)
+		learningRate = 0.5f;
+
+		int max_epoch = 10000; // Epoch sýnýrýný artýrdým
+		int epoch = 0;
+		double total_mse = 0;
+
+		// --- EÐÝTÝM DÖNGÜSÜ ---
+		do {
+			total_mse = 0;
+			for (int s = 0; s < numSample; s++) {
+
+				// ===============================================
+				// ADIM A: GÝRÝÞ VE HEDEF HAZIRLAMA (Normalizasyon)
+				// ===============================================
+				// Sigmoid fonksiyonu (0 ile 1) arasýnda deðer üretir.
+				// Verilerimizi [0.2 ile 0.8] arasýna sýkýþtýrýrsak að MÜKEMMEL öðrenir.
+
+				float rawX = Samples[s * inputDim];     // Kayýtlý X (-1..1 arasý)
+				float rawY = Samples[s * inputDim + 1]; // Kayýtlý Y (-1..1 arasý)
+
+				// -1..1 aralýðýný -> 0.2..0.8 aralýðýna çeviriyoruz (Güvenli Bölge)
+				float inputX = 0.2f + ((rawX + 1.0f) / 2.0f) * 0.6f;
+				float targetY = 0.2f + ((rawY + 1.0f) / 2.0f) * 0.6f;
+
+				// Giriþ Katmanýna Yükle
+				// [0] -> X koordinatý
+				// [1] -> Bias etkisi için sabit 1.0 veriyoruz
+				Activations[NeuronOffsets[0] + 0] = inputX;
+				Activations[NeuronOffsets[0] + 1] = 1.0f;
+
+				// ===============================================
+				// ADIM B: ÝLERÝ YAYILIM (Forward Pass)
+				// ===============================================
+				for (int l = 0; l < TotalLayers - 1; l++) {
+					int giris_bas = NeuronOffsets[l];
+					int cikis_bas = NeuronOffsets[l + 1];
+					int agirlik_bas = WeightOffsets[l];
+					int giris_sayisi = Layers[l];
+					int cikis_sayisi = Layers[l + 1];
+
+					for (int j = 0; j < cikis_sayisi; j++) {
+						float net = 0;
+						for (int i = 0; i < giris_sayisi; i++) {
+							int w_idx = agirlik_bas + (i * cikis_sayisi) + j;
+							net += Activations[giris_bas + i] * Weights[w_idx];
+						}
+
+						int b_idx = cikis_bas + j - inputDim;
+						if (b_idx >= 0) net += Biases[b_idx];
+
+						Activations[cikis_bas + j] = sigmoid(net);
+					}
+				}
+
+				// ===============================================
+				// ADIM C: GERÝ YAYILIM (Hata Hesabý)
+				// ===============================================
+				int son_katman = TotalLayers - 1;
+				int son_bas = NeuronOffsets[son_katman];
+
+				// SADECE ÝLK ÇIKIÞ NÖRONUNU EÐÝTÝYORUZ (Y Tahmini)
+				// Diðer nöronlar (varsa) umrumuzda deðil.
+				float outputY = Activations[son_bas + 0];
+				float error = targetY - outputY;
+				total_mse += error * error;
+
+				// Çýkýþ Deltasý (Sigmoid Türevi ile)
+				Errors[son_bas + 0] = error * sigmoid_derivative(outputY);
+
+				// Diðer çýkýþlarýn hatasýný sýfýrla (Onlarý eðitme)
+				for (int k = 1; k < Layers[son_katman]; k++) Errors[son_bas + k] = 0.0f;
+
+				// Gizli Katman Deltalarý (Ayný Kod)
+				for (int l = TotalLayers - 2; l > 0; l--) {
+					int curr_start = NeuronOffsets[l];
+					int next_start = NeuronOffsets[l + 1];
+					int w_start = WeightOffsets[l];
+					int curr_count = Layers[l];
+					int next_count = Layers[l + 1];
+
+					for (int i = 0; i < curr_count; i++) {
+						float sum = 0;
+						for (int j = 0; j < next_count; j++) {
+							int w_idx = w_start + (i * next_count) + j;
+							sum += Errors[next_start + j] * Weights[w_idx];
+						}
+						Errors[curr_start + i] = sum * sigmoid_derivative(Activations[curr_start + i]);
+					}
+				}
+
+				// ===============================================
+				// ADIM D: GÜNCELLEME (Update)
+				// ===============================================
+				for (int l = 0; l < TotalLayers - 1; l++) {
+					int in_start = NeuronOffsets[l];
+					int out_start = NeuronOffsets[l + 1];
+					int w_start = WeightOffsets[l];
+					int in_count = Layers[l];
+					int out_count = Layers[l + 1];
+
+					for (int j = 0; j < out_count; j++) {
+						float delta = Errors[out_start + j];
+
+						int b_idx = out_start + j - inputDim;
+						if (b_idx >= 0) Biases[b_idx] += learningRate * delta;
+
+						for (int i = 0; i < in_count; i++) {
+							int w_idx = w_start + (i * out_count) + j;
+							Weights[w_idx] += learningRate * delta * Activations[in_start + i];
+						}
+					}
+				}
+			}
+			epoch++;
+
+			// Hata çok düþerse erken bitir
+		} while (epoch < max_epoch && total_mse > 0.0005);
+
+		MessageBox::Show("Regresyon Tamam!\nEpoch: " + epoch + "\nMSE: " + total_mse);
+
+		// --- 2. ÇÝZÝM ÝÞLEMÝ ---
+		Bitmap^ surface = gcnew Bitmap(pictureBox1->Width, pictureBox1->Height);
+		Graphics^ g = Graphics::FromImage(surface);
+		g->SmoothingMode = System::Drawing::Drawing2D::SmoothingMode::AntiAlias;
+
+		float cx = (float)pictureBox1->Width / 2.0f;
+		float cy = (float)pictureBox1->Height / 2.0f;
+
+		// Eksenleri Çiz
+		Pen^ axisPen = gcnew Pen(Color::Black, 1.0f);
+		g->DrawLine(axisPen, cx, 0.0f, cx, (float)pictureBox1->Height);
+		g->DrawLine(axisPen, 0.0f, cy, (float)pictureBox1->Width, cy);
+
+		// Noktalarý Çiz (Mavi)
+		System::Drawing::SolidBrush^ blueBrush = gcnew System::Drawing::SolidBrush(Color::Blue);
+		for (int i = 0; i < numSample; i++) {
+			// Samples zaten -1..1 aralýðýnda
+			float sx = Samples[i * inputDim];
+			float sy = Samples[i * inputDim + 1];
+
+			int px = (int)(sx * cx + cx);
+			int py = (int)(cy - sy * cy);
+
+			g->FillEllipse(blueBrush, px - 4, py - 4, 8, 8);
+		}
+
+		// Eðriyi Çiz (Kýrmýzý)
+		System::Drawing::Point prevPoint = System::Drawing::Point(-1, -1);
+		Pen^ redPen = gcnew Pen(Color::Red, 2.0f);
+
+		// Soldan saða her piksel için tahmin yapýyoruz
+		for (int x = 0; x < pictureBox1->Width; x += 2) {
+
+			// X'i [0.2 - 0.8] aralýðýna çevir (Ayný eðitimdeki gibi)
+			float normalizedX = (float)(x - cx) / cx; // -1..1
+			float inputX = 0.2f + ((normalizedX + 1.0f) / 2.0f) * 0.6f;
+
+			// Aða Sor
+			Activations[NeuronOffsets[0] + 0] = inputX;
+			Activations[NeuronOffsets[0] + 1] = 1.0f; // Sabit Bias Girdisi
+
+			// Forward Pass (Sadece hesaplama)
+			for (int l = 0; l < TotalLayers - 1; l++) {
+				int giris_bas = NeuronOffsets[l];
+				int cikis_bas = NeuronOffsets[l + 1];
+				int agirlik_bas = WeightOffsets[l];
+				int giris_say = Layers[l];
+				int cikis_say = Layers[l + 1];
+
+				for (int j = 0; j < cikis_say; j++) {
+					float net = 0;
+					for (int i = 0; i < giris_say; i++) {
+						int w_idx = agirlik_bas + (i * cikis_say) + j;
+						net += Activations[giris_bas + i] * Weights[w_idx];
+					}
+					int b_idx = cikis_bas + j - inputDim;
+					if (b_idx >= 0) net += Biases[b_idx];
+					Activations[cikis_bas + j] = sigmoid(net);
+				}
+			}
+
+			// Çýktýyý Al (0.2 - 0.8 arasý)
+			float outputY = Activations[NeuronOffsets[TotalLayers - 1]];
+
+			// 0.2-0.8 aralýðýndan -> Piksele Çevir
+			// Ters Ýþlem: (y - 0.2) / 0.6 -> 0..1 -> *2 -1 -> -1..1
+			float normalizedY = ((outputY - 0.2f) / 0.6f) * 2.0f - 1.0f;
+
+			int py = (int)(cy - normalizedY * cy);
+
+			// Çizgi Çek
+			System::Drawing::Point currentPoint = System::Drawing::Point(x, py);
+			if (prevPoint.X != -1) {
+				if (py > 0 && py < pictureBox1->Height)
+					g->DrawLine(redPen, prevPoint, currentPoint);
+			}
+			prevPoint = currentPoint;
+		}
+
+		pictureBox1->Image = surface;
 	}
 	};
 }

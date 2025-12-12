@@ -41,6 +41,12 @@
     <ClInclude Include="Form_MultiLayer.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
+    <ClInclude Include="Form_MultiLayerMomentum.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="Form_MNIST.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CppCLR_WinformsProjekt.cpp">
