@@ -12,7 +12,7 @@ using namespace System;
 #include "Form_MultiLayerMomentum.h"
 #include "Form_MultiLayer.h"
 #include "Form_MNIST.h"
-
+#include "Form_AutoEncoder.h"
 
 using namespace System::Windows::Forms;
 
@@ -20,6 +20,6 @@ using namespace System::Windows::Forms;
 int main() {
 	Application::EnableVisualStyles();
 	Application::SetCompatibleTextRenderingDefault(false);
-	Application::Run(gcnew CppCLRWinformsProjekt::Form_MNIST());
+	Application::Run(gcnew CppCLRWinformsProjekt::Form_MultiLayer());
 	return 0;
 }

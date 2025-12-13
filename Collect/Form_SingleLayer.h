@@ -671,6 +671,7 @@ namespace CppCLRWinformsProjekt {
 		int epoch = 0;
 		bool error = true;
 
+		//eðitim döngüsü
 		while (error && epoch < max_epoch) {
 			error = false;
 			for (int k = 0; k < numSample; k++) {
@@ -690,7 +691,7 @@ namespace CppCLRWinformsProjekt {
 							Weights[c * inputDim + d] += lrn_rate * err * Samples[k * inputDim + d];
 						bias[c] += lrn_rate * err;
 						error = true;
-					}
+					}								
 				}
 			}
 			epoch++;
