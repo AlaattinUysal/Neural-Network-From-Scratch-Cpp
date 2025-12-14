@@ -3,6 +3,7 @@
 #include <cmath>
 #include <ctime>
 #include <algorithm>
+#include <string>
 
 // Mecburi: Windows String'ini C String'ine çevirmek için
 using namespace System::Runtime::InteropServices;
@@ -43,12 +44,29 @@ namespace CppCLRWinformsProjekt {
 		}
 
 	private:
-		System::Windows::Forms::Button^ btn_Load;
-		System::Windows::Forms::Button^ btn_Init;
-		System::Windows::Forms::Button^ btn_Train;
-		System::Windows::Forms::Button^ btn_Test;
-		System::Windows::Forms::PictureBox^ pBox_Visual;
-		System::Windows::Forms::RichTextBox^ rtb_Logs;
+		// --- STANDART ARAYÜZ ELEMANLARI ---
+		System::Windows::Forms::PictureBox^ pictureBox1;
+		System::Windows::Forms::GroupBox^ groupBox1;
+		System::Windows::Forms::Button^ btn_InitNet; // Aðý Kur Butonu
+
+		System::Windows::Forms::Label^ lbl_Hidden;
+		System::Windows::Forms::TextBox^ txt_Hidden;
+		System::Windows::Forms::Label^ lbl_Epoch;
+		System::Windows::Forms::TextBox^ txt_Epoch;
+		System::Windows::Forms::Label^ lbl_LR;
+		System::Windows::Forms::TextBox^ txt_LearnRate;
+
+		System::Windows::Forms::GroupBox^ groupBox2;
+		System::Windows::Forms::Button^ btn_Load;    // Veri Yükle Butonu
+		System::Windows::Forms::Label^ lbl_DataStatus;
+
+		System::Windows::Forms::TextBox^ textBox1;   // Log Ekraný
+
+		System::Windows::Forms::MenuStrip^ menuStrip1;
+		System::Windows::Forms::ToolStripMenuItem^ processToolStripMenuItem;
+		System::Windows::Forms::ToolStripMenuItem^ trainingToolStripMenuItem;
+		System::Windows::Forms::ToolStripMenuItem^ testingToolStripMenuItem;
+
 		System::ComponentModel::Container^ components;
 
 		// --- BASÝT DEÐÝÞKENLER ---
@@ -75,7 +93,6 @@ namespace CppCLRWinformsProjekt {
 		float tanh_derivative(float y) { return 1.0f - (y * y); }
 
 		// --- YARDIMCI: Windows String -> C String Çevirici ---
-		// Windows "String^" kullanýr, fopen "char*" ister. Bu köprü þart.
 		void StringToChar(String^ s, char* output) {
 			IntPtr p = Marshal::StringToHGlobalAnsi(s);
 			const char* chars = static_cast<const char*>(p.ToPointer());
@@ -86,110 +103,207 @@ namespace CppCLRWinformsProjekt {
 #pragma region Windows Form Designer generated code
 		void InitializeComponent(void)
 		{
+			this->pictureBox1 = (gcnew System::Windows::Forms::PictureBox());
+			this->groupBox1 = (gcnew System::Windows::Forms::GroupBox());
+			this->btn_InitNet = (gcnew System::Windows::Forms::Button());
+			this->lbl_Hidden = (gcnew System::Windows::Forms::Label());
+			this->txt_Hidden = (gcnew System::Windows::Forms::TextBox());
+			this->lbl_Epoch = (gcnew System::Windows::Forms::Label());
+			this->txt_Epoch = (gcnew System::Windows::Forms::TextBox());
+			this->lbl_LR = (gcnew System::Windows::Forms::Label());
+			this->txt_LearnRate = (gcnew System::Windows::Forms::TextBox());
+			this->groupBox2 = (gcnew System::Windows::Forms::GroupBox());
 			this->btn_Load = (gcnew System::Windows::Forms::Button());
-			this->btn_Init = (gcnew System::Windows::Forms::Button());
-			this->btn_Train = (gcnew System::Windows::Forms::Button());
-			this->btn_Test = (gcnew System::Windows::Forms::Button());
-			this->pBox_Visual = (gcnew System::Windows::Forms::PictureBox());
-			this->rtb_Logs = (gcnew System::Windows::Forms::RichTextBox());
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pBox_Visual))->BeginInit();
+			this->lbl_DataStatus = (gcnew System::Windows::Forms::Label());
+			this->textBox1 = (gcnew System::Windows::Forms::TextBox());
+			this->menuStrip1 = (gcnew System::Windows::Forms::MenuStrip());
+			this->processToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->trainingToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->testingToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->BeginInit();
+			this->groupBox1->SuspendLayout();
+			this->groupBox2->SuspendLayout();
+			this->menuStrip1->SuspendLayout();
 			this->SuspendLayout();
 
-			this->btn_Load->Location = System::Drawing::Point(12, 12);
-			this->btn_Load->Size = System::Drawing::Size(120, 40);
-			this->btn_Load->Text = L"1. Veri Yükle";
+			// pictureBox1
+			this->pictureBox1->BackColor = System::Drawing::Color::White;
+			this->pictureBox1->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
+			this->pictureBox1->Location = System::Drawing::Point(17, 43);
+			this->pictureBox1->Name = L"pictureBox1";
+			this->pictureBox1->Size = System::Drawing::Size(1069, 711);
+			this->pictureBox1->TabIndex = 0;
+			this->pictureBox1->TabStop = false;
+
+			// groupBox1 (Network Architecture)
+			this->groupBox1->Controls->Add(this->btn_InitNet);
+			this->groupBox1->Controls->Add(this->lbl_Hidden);
+			this->groupBox1->Controls->Add(this->txt_Hidden);
+			this->groupBox1->Controls->Add(this->lbl_Epoch);
+			this->groupBox1->Controls->Add(this->txt_Epoch);
+			this->groupBox1->Controls->Add(this->lbl_LR);
+			this->groupBox1->Controls->Add(this->txt_LearnRate);
+			this->groupBox1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(162)));
+			this->groupBox1->Location = System::Drawing::Point(1159, 62);
+			this->groupBox1->Name = L"groupBox1";
+			this->groupBox1->Size = System::Drawing::Size(267, 180);
+			this->groupBox1->TabIndex = 1;
+			this->groupBox1->TabStop = false;
+			this->groupBox1->Text = L"Network Architecture";
+
+			// Hidden Nodes
+			this->lbl_Hidden->AutoSize = true;
+			this->lbl_Hidden->Location = System::Drawing::Point(144, 30);
+			this->lbl_Hidden->Text = L"Gizli Nöron";
+			this->txt_Hidden->Location = System::Drawing::Point(13, 27);
+			this->txt_Hidden->Size = System::Drawing::Size(108, 20);
+			this->txt_Hidden->Text = L"64";
+
+			// Epoch
+			this->lbl_Epoch->AutoSize = true;
+			this->lbl_Epoch->Location = System::Drawing::Point(144, 60);
+			this->lbl_Epoch->Text = L"Epoch";
+			this->txt_Epoch->Location = System::Drawing::Point(13, 57);
+			this->txt_Epoch->Size = System::Drawing::Size(108, 20);
+			this->txt_Epoch->Text = L"50";
+
+			// Learn Rate
+			this->lbl_LR->AutoSize = true;
+			this->lbl_LR->Location = System::Drawing::Point(144, 90);
+			this->lbl_LR->Text = L"Learn Rate";
+			this->txt_LearnRate->Location = System::Drawing::Point(13, 87);
+			this->txt_LearnRate->Size = System::Drawing::Size(108, 20);
+			this->txt_LearnRate->Text = L"0.1";
+
+			// Init Button (Aðý Kur)
+			this->btn_InitNet->Location = System::Drawing::Point(13, 125);
+			this->btn_InitNet->Size = System::Drawing::Size(175, 41);
+			this->btn_InitNet->Text = L"Network Setup (Init)";
+			this->btn_InitNet->UseVisualStyleBackColor = true;
+			this->btn_InitNet->Click += gcnew System::EventHandler(this, &Form_AutoEncoder::btn_Init_Click);
+
+			// groupBox2 (Dataset Loading)
+			this->groupBox2->Controls->Add(this->btn_Load);
+			this->groupBox2->Controls->Add(this->lbl_DataStatus);
+			this->groupBox2->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(162)));
+			this->groupBox2->Location = System::Drawing::Point(1172, 260);
+			this->groupBox2->Name = L"groupBox2";
+			this->groupBox2->Size = System::Drawing::Size(253, 100);
+			this->groupBox2->TabIndex = 2;
+			this->groupBox2->TabStop = false;
+			this->groupBox2->Text = L"Dataset Loading";
+
+			// Load Button
+			this->btn_Load->Location = System::Drawing::Point(10, 25);
+			this->btn_Load->Size = System::Drawing::Size(230, 40);
+			this->btn_Load->Text = L"Load Images (C File)";
+			this->btn_Load->UseVisualStyleBackColor = true;
 			this->btn_Load->Click += gcnew System::EventHandler(this, &Form_AutoEncoder::btn_Load_Click);
 
-			this->btn_Init->Location = System::Drawing::Point(12, 60);
-			this->btn_Init->Size = System::Drawing::Size(120, 40);
-			this->btn_Init->Text = L"2. Aðý Kur";
-			this->btn_Init->Click += gcnew System::EventHandler(this, &Form_AutoEncoder::btn_Init_Click);
+			// Status Label
+			this->lbl_DataStatus->AutoSize = true;
+			this->lbl_DataStatus->Location = System::Drawing::Point(10, 75);
+			this->lbl_DataStatus->Text = L"Durum: Bekliyor...";
 
-			this->btn_Train->Location = System::Drawing::Point(12, 110);
-			this->btn_Train->Size = System::Drawing::Size(120, 40);
-			this->btn_Train->Text = L"3. Eðit";
-			this->btn_Train->Click += gcnew System::EventHandler(this, &Form_AutoEncoder::btn_Train_Click);
+			// textBox1 (Logs)
+			this->textBox1->Location = System::Drawing::Point(1159, 380);
+			this->textBox1->Multiline = true;
+			this->textBox1->ScrollBars = System::Windows::Forms::ScrollBars::Vertical;
+			this->textBox1->Name = L"textBox1";
+			this->textBox1->Size = System::Drawing::Size(328, 367);
+			this->textBox1->TabIndex = 5;
 
-			this->btn_Test->Location = System::Drawing::Point(12, 160);
-			this->btn_Test->Size = System::Drawing::Size(120, 40);
-			this->btn_Test->Text = L"4. Test Et";
-			this->btn_Test->Click += gcnew System::EventHandler(this, &Form_AutoEncoder::btn_Test_Click);
+			// MenuStrip
+			this->menuStrip1->Items->AddRange(gcnew cli::array<System::Windows::Forms::ToolStripItem^>(1) { this->processToolStripMenuItem });
+			this->menuStrip1->Location = System::Drawing::Point(0, 0);
+			this->menuStrip1->Name = L"menuStrip1";
+			this->menuStrip1->Size = System::Drawing::Size(1550, 24);
+			this->menuStrip1->Text = L"menuStrip1";
 
-			this->pBox_Visual->BackColor = System::Drawing::Color::Black;
-			this->pBox_Visual->Location = System::Drawing::Point(150, 12);
-			this->pBox_Visual->Size = System::Drawing::Size(580, 280);
+			this->processToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array<System::Windows::Forms::ToolStripItem^>(2) {
+				this->trainingToolStripMenuItem, this->testingToolStripMenuItem
+			});
+			this->processToolStripMenuItem->Text = L"Process";
 
-			this->rtb_Logs->Location = System::Drawing::Point(12, 310);
-			this->rtb_Logs->Size = System::Drawing::Size(718, 150);
-			this->rtb_Logs->Text = L"";
+			this->trainingToolStripMenuItem->Text = L"Training";
+			this->trainingToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form_AutoEncoder::trainingToolStripMenuItem_Click);
 
-			this->Controls->Add(this->rtb_Logs);
-			this->Controls->Add(this->pBox_Visual);
-			this->Controls->Add(this->btn_Test);
-			this->Controls->Add(this->btn_Train);
-			this->Controls->Add(this->btn_Init);
-			this->Controls->Add(this->btn_Load);
+			this->testingToolStripMenuItem->Text = L"Testing";
+			this->testingToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form_AutoEncoder::testingToolStripMenuItem_Click);
+
+			// Form
+			this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
+			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
+			this->ClientSize = System::Drawing::Size(1550, 800);
+			this->Controls->Add(this->textBox1);
+			this->Controls->Add(this->groupBox2);
+			this->Controls->Add(this->groupBox1);
+			this->Controls->Add(this->pictureBox1);
+			this->Controls->Add(this->menuStrip1);
+			this->MainMenuStrip = this->menuStrip1;
 			this->Name = L"Form_AutoEncoder";
-			this->Text = L"AutoEncoder (Saf C Okuma)";
-			this->Size = System::Drawing::Size(760, 520);
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pBox_Visual))->EndInit();
+			this->Text = L"AutoEncoder (Standard Layout)";
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->EndInit();
+			this->groupBox1->ResumeLayout(false);
+			this->groupBox1->PerformLayout();
+			this->groupBox2->ResumeLayout(false);
+			this->groupBox2->PerformLayout();
+			this->menuStrip1->ResumeLayout(false);
+			this->menuStrip1->PerformLayout();
 			this->ResumeLayout(false);
+			this->PerformLayout();
 		}
 #pragma endregion
 
-		// --- 1. VERÝ YÜKLEME (SAF C: fopen, fread, fseek) ---
+		// --- 1. VERÝ YÜKLEME (SAF C: fopen, fread) ---
 	private: System::Void btn_Load_Click(System::Object^ sender, System::EventArgs^ e) {
 		OpenFileDialog^ ofd = gcnew OpenFileDialog();
 		ofd->Title = "train-images dosyasýný seç";
 		if (ofd->ShowDialog() != System::Windows::Forms::DialogResult::OK) return;
 
-		// Windows yolunu C yoluna çevir
 		char dosya_yolu[256];
 		StringToChar(ofd->FileName, dosya_yolu);
 
-		// SAF C DOSYA AÇMA
-		FILE* dosya = fopen(dosya_yolu, "rb"); // rb: Read Binary (Ýkilik Oku)
+		FILE* dosya = fopen(dosya_yolu, "rb");
 
 		if (dosya != NULL) {
-			// 1. Header (Baþlýk) Atla
-			// MNIST dosyalarýnýn ilk 16 baytý gereksiz bilgidir.
-			// fseek: Dosya içinde zýplama komutu. 16 bayt ileri git.
-			fseek(dosya, 16, SEEK_SET);
+			fseek(dosya, 16, SEEK_SET); // 16 byte header atla
 
-			numTrain = 1000; // 1000 resim alalým
+			numTrain = 1000;
 			if (TrainImages) delete[] TrainImages;
 			TrainImages = new float[numTrain * 784];
 
-			rtb_Logs->AppendText("Dosya açýldý, okunuyor...\n");
+			textBox1->AppendText("Dosya açýldý, okunuyor...\r\n");
+			Application::DoEvents();
 
-			unsigned char tampon[784]; // Bir resmi tutacak geçici hafýza
+			unsigned char tampon[784];
 
 			for (int i = 0; i < numTrain; i++) {
-				// Dosyadan 784 bayt oku ve tampona yaz
 				fread(tampon, 1, 784, dosya);
-
-				// 0-255 arasýný 0-1 arasýna çevir
 				for (int p = 0; p < 784; p++) {
 					TrainImages[i * 784 + p] = (float)tampon[p] / 255.0f;
 				}
 			}
 
-			fclose(dosya); // Dosyayý kapat
-			rtb_Logs->AppendText("Tamamlandý. 1000 resim yüklendi.\n");
+			fclose(dosya);
+			lbl_DataStatus->Text = "Yüklendi: 1000 resim";
+			textBox1->AppendText("Tamamlandý. 1000 resim yüklendi.\r\n");
 		}
 		else {
 			MessageBox::Show("Dosya açýlamadý!");
 		}
 	}
 
-		   // --- 2. AÐI KUR ---
+		   // --- 2. AÐI KUR (INIT) ---
 	private: System::Void btn_Init_Click(System::Object^ sender, System::EventArgs^ e) {
-		int gizli_boyut = 64;
+		int gizli_boyut = Convert::ToInt32(txt_Hidden->Text);
 
 		if (Weights) delete[] Weights; if (Biases) delete[] Biases;
 		if (Layers) delete[] Layers;
+		if (NeuronOffsets) delete[] NeuronOffsets; if (WeightOffsets) delete[] WeightOffsets;
+		if (Activations) delete[] Activations; if (Errors) delete[] Errors;
 
-		// Mimari: 784 -> 64 -> 784
+		// Mimari: 784 -> Gizli -> 784
 		TotalLayers = 3;
 		Layers = new int[3];
 		Layers[0] = 784; Layers[1] = gizli_boyut; Layers[2] = 784;
@@ -214,15 +328,19 @@ namespace CppCLRWinformsProjekt {
 		for (int i = 0; i < total_w; i++) Weights[i] = ((float)rand() / RAND_MAX - 0.5f) * 0.1f;
 		for (int i = 0; i < total_b; i++) Biases[i] = 0.0f;
 
-		rtb_Logs->AppendText("Að Hazýr: 784 -> " + gizli_boyut + " -> 784\n");
+		btn_InitNet->Text = "Network Ready";
+		textBox1->AppendText("Að Hazýr: 784 -> " + gizli_boyut + " -> 784\r\n");
 	}
 
-		   // --- 3. EÐÝTÝM ---
-	private: System::Void btn_Train_Click(System::Object^ sender, System::EventArgs^ e) {
-		if (numTrain == 0) return;
+		   // --- 3. EÐÝTÝM (PROCESS -> TRAINING) ---
+	private: System::Void trainingToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
+		if (numTrain == 0) { MessageBox::Show("Önce veri yükleyin!"); return; }
+		if (TotalLayers == 0) { MessageBox::Show("Önce aðý kurun (Init)!"); return; }
 
-		int epochs = 50;
-		rtb_Logs->AppendText("Eðitim Baþladý...\n");
+		int epochs = Convert::ToInt32(txt_Epoch->Text);
+		learningRate = (float)Convert::ToDouble(txt_LearnRate->Text);
+
+		textBox1->AppendText("Eðitim Baþladý...\r\n");
 
 		for (int ep = 0; ep < epochs; ep++) {
 			double toplam_hata = 0;
@@ -280,16 +398,16 @@ namespace CppCLRWinformsProjekt {
 			}
 
 			if (ep % 10 == 0) {
-				rtb_Logs->AppendText("Epoch " + ep + " Hata: " + (toplam_hata / numTrain) + "\n");
-				rtb_Logs->Update();
+				textBox1->AppendText("Epoch " + ep + " Hata: " + (toplam_hata / numTrain) + "\r\n");
+				Application::DoEvents();
 			}
 		}
 		MessageBox::Show("Eðitim Tamamlandý!");
 	}
 
-		   // --- 4. TEST VE ÇÝZÝM ---
-	private: System::Void btn_Test_Click(System::Object^ sender, System::EventArgs^ e) {
-		if (numTrain == 0) return;
+		   // --- 4. TEST VE GÖRSELLEÞTÝRME (PROCESS -> TESTING) ---
+	private: System::Void testingToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
+		if (numTrain == 0 || TotalLayers == 0) return;
 
 		int s = rand() % numTrain;
 
@@ -314,9 +432,18 @@ namespace CppCLRWinformsProjekt {
 			Activations[out_idx + j] = sigmoid(net);
 		}
 
-		// ÇÝZÝM (SetPixel - En kolayý)
-		Bitmap^ bmp = gcnew Bitmap(pBox_Visual->Width, pBox_Visual->Height);
+		// ÇÝZÝM (Büyük Ekranýn Sol Üst Köþesine)
+		// PictureBox artýk çok büyük olduðu için temizlememiz iyi olur
+		Bitmap^ bmp;
+		if (pictureBox1->Image) bmp = (Bitmap^)pictureBox1->Image;
+		else bmp = gcnew Bitmap(pictureBox1->Width, pictureBox1->Height);
+
+		Graphics^ g = Graphics::FromImage(bmp);
+		g->Clear(Color::White); // Arka planý temizle
+
 		int zoom = 10;
+		int marginX = 20; // Kenardan boþluk
+		int marginY = 20;
 
 		for (int y = 0; y < 28; y++) {
 			for (int x = 0; x < 28; x++) {
@@ -326,23 +453,31 @@ namespace CppCLRWinformsProjekt {
 				if (c1 < 0) c1 = 0; if (c1 > 255) c1 = 255;
 				Color renk1 = Color::FromArgb(c1, c1, c1);
 
-				// Sað: Yapay Zeka
+				// Sað: Yapay Zeka (AutoEncoder Çýktýsý)
 				float p2 = Activations[out_idx + (y * 28 + x)];
 				int c2 = (int)(p2 * 255);
 				if (c2 < 0) c2 = 0; if (c2 > 255) c2 = 255;
 				Color renk2 = Color::FromArgb(c2, c2, c2);
 
-				// Zoom yap (Pikseli büyüt)
+				// Elle Piksel Boyama (Zoomlu)
 				for (int zx = 0; zx < zoom; zx++) {
 					for (int zy = 0; zy < zoom; zy++) {
-						bmp->SetPixel(x * zoom + zx, y * zoom + zy, renk1);       // Sol
-						bmp->SetPixel(300 + x * zoom + zx, y * zoom + zy, renk2); // Sað
+						// Sol Resim (Orjinal)
+						bmp->SetPixel(marginX + x * zoom + zx, marginY + y * zoom + zy, renk1);
+						// Sað Resim (Reconstructed) - 300 piksel saða
+						bmp->SetPixel(marginX + 300 + x * zoom + zx, marginY + y * zoom + zy, renk2);
 					}
 				}
 			}
 		}
-		pBox_Visual->Image = bmp;
-		rtb_Logs->AppendText("Örnek " + s + " çizildi.\n");
+
+		// Etiketleri Yaz
+		System::Drawing::Font^ font = gcnew System::Drawing::Font("Arial", 16);
+		g->DrawString("Orjinal", font, Brushes::Black, marginX, marginY + 280 + 10);
+		g->DrawString("Yapay Zeka", font, Brushes::Black, marginX + 300, marginY + 280 + 10);
+
+		pictureBox1->Image = bmp;
+		textBox1->AppendText("Örnek " + s + " test edildi ve çizildi.\r\n");
 	}
 	};
 }

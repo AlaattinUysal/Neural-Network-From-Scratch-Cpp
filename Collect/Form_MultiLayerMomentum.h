@@ -5,6 +5,7 @@
 #include <cmath>
 #include <algorithm>
 #include <ctime>
+#include <string>
 
 namespace CppCLRWinformsProjekt {
 
@@ -30,6 +31,7 @@ namespace CppCLRWinformsProjekt {
 		{
 			if (components) delete components;
 
+			// Bellek Temizliği
 			if (Samples != nullptr) delete[] Samples;
 			if (targets != nullptr) delete[] targets;
 
@@ -42,20 +44,20 @@ namespace CppCLRWinformsProjekt {
 			if (Weights) delete[] Weights;
 			if (Biases) delete[] Biases;
 
+			// Momentum Bellek Temizliği
 			if (prevWeightChanges) delete[] prevWeightChanges;
 			if (prevBiasChanges) delete[] prevBiasChanges;
 		}
 
 	private:
-		// ARAYÜZ ELEMANLARI
+		// --- ARAYÜZ ELEMANLARI ---
 		System::Windows::Forms::PictureBox^ pictureBox1;
 		System::Windows::Forms::GroupBox^ groupBox1;
-		System::Windows::Forms::GroupBox^ groupBox2;
 		System::Windows::Forms::Button^ Set_Net;
-
 		System::Windows::Forms::Label^ label1;
 		System::Windows::Forms::ComboBox^ ClassCountBox;
 
+		// Parametre Kontrolleri
 		System::Windows::Forms::Label^ lbl_Hidden;
 		System::Windows::Forms::TextBox^ txt_HiddenLayer;
 		System::Windows::Forms::Label^ lbl_Neurons;
@@ -63,13 +65,18 @@ namespace CppCLRWinformsProjekt {
 		System::Windows::Forms::Label^ lbl_LR;
 		System::Windows::Forms::TextBox^ txt_LearnRate;
 
+		// MOMENTUM KONTROLLERİ (Yeni Eklenenler)
 		System::Windows::Forms::Label^ lbl_Momentum;
 		System::Windows::Forms::TextBox^ txt_Momentum;
 		System::Windows::Forms::CheckBox^ chk_UseMomentum;
 
+		System::Windows::Forms::GroupBox^ groupBox2;
 		System::Windows::Forms::Label^ label2;
 		System::Windows::Forms::ComboBox^ ClassNoBox;
 		System::Windows::Forms::Label^ label3;
+
+		// Log Ekranı
+		System::Windows::Forms::TextBox^ textBox1;
 
 		System::Windows::Forms::MenuStrip^ menuStrip1;
 		System::Windows::Forms::ToolStripMenuItem^ processToolStripMenuItem;
@@ -77,17 +84,15 @@ namespace CppCLRWinformsProjekt {
 		System::Windows::Forms::ToolStripMenuItem^ testingToolStripMenuItem;
 		System::Windows::Forms::ToolStripMenuItem^ regressionToolStripMenuItem;
 
-		System::Windows::Forms::OpenFileDialog^ openFileDialog1;
-		System::Windows::Forms::SaveFileDialog^ saveFileDialog1;
 		System::ComponentModel::Container^ components;
 
-		// DEĞİŞKENLER
+		// --- DEĞİŞKENLER ---
 		int numSample = 0;
 		int inputDim = 2;
 		float* Samples = nullptr;
 		float* targets = nullptr;
 
-		// AĞ YAPISI
+		// Ağ Yapısı
 		int TotalLayers = 0;
 		int* Layers = nullptr;
 		int* NeuronOffsets = nullptr;
@@ -106,7 +111,7 @@ namespace CppCLRWinformsProjekt {
 
 		float learningRate = 0.1f;
 
-		// MATEMATİKSEL FONKSİYONLAR
+		// --- MATEMATİKSEL FONKSİYONLAR ---
 		float sigmoid(float x) {
 			if (x > 10) return 0.9999f;
 			if (x < -10) return 0.0001f;
@@ -117,23 +122,19 @@ namespace CppCLRWinformsProjekt {
 			return x * (1.0f - x);
 		}
 
-		// Sayı çok büyük veya çok küçük mü kontrol et
 		bool sayi_gecerli_mi(float sayi) {
-			// Sonsuz veya tanımsız değilse geçerlidir
-			if (sayi != sayi) return false; // NaN kontrolü (sayı kendine eşit değilse NaN'dır)
-			if (sayi > 1e30f) return false;  // Çok büyük
-			if (sayi < -1e30f) return false; // Çok küçük
+			if (sayi != sayi) return false;
+			if (sayi > 1e30f) return false;
+			if (sayi < -1e30f) return false;
 			return true;
 		}
 
-		// Sayıyı makul sınırlar içinde tut
 		float sinirla(float sayi, float max_deger) {
 			if (sayi > max_deger) return max_deger;
 			if (sayi < -max_deger) return -max_deger;
 			return sayi;
 		}
 
-		// Momentum hesapla
 		float momentum_hesapla(float onceki_degisim) {
 			if (useMomentum) {
 				return momentumValue * onceki_degisim;
@@ -162,6 +163,7 @@ namespace CppCLRWinformsProjekt {
 			this->label2 = (gcnew System::Windows::Forms::Label());
 			this->ClassNoBox = (gcnew System::Windows::Forms::ComboBox());
 			this->label3 = (gcnew System::Windows::Forms::Label());
+			this->textBox1 = (gcnew System::Windows::Forms::TextBox());
 			this->menuStrip1 = (gcnew System::Windows::Forms::MenuStrip());
 			this->processToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->trainingToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
@@ -175,15 +177,17 @@ namespace CppCLRWinformsProjekt {
 			this->SuspendLayout();
 
 			// pictureBox1
-			this->pictureBox1->BackColor = System::Drawing::Color::White;
-			this->pictureBox1->Location = System::Drawing::Point(12, 40);
-			this->pictureBox1->Size = System::Drawing::Size(800, 600);
+			this->pictureBox1->BackColor = System::Drawing::SystemColors::ButtonHighlight;
+			this->pictureBox1->Location = System::Drawing::Point(17, 43);
+			this->pictureBox1->Margin = System::Windows::Forms::Padding(4);
+			this->pictureBox1->Name = L"pictureBox1";
+			this->pictureBox1->Size = System::Drawing::Size(1069, 711);
 			this->pictureBox1->TabIndex = 0;
 			this->pictureBox1->TabStop = false;
 			this->pictureBox1->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &Form_MultiLayerMomentum::pictureBox1_Paint);
 			this->pictureBox1->MouseClick += gcnew System::Windows::Forms::MouseEventHandler(this, &Form_MultiLayerMomentum::pictureBox1_MouseClick);
 
-			// groupBox1 (Network Settings)
+			// groupBox1 (Network Architecture)
 			this->groupBox1->Controls->Add(this->Set_Net);
 			this->groupBox1->Controls->Add(this->label1);
 			this->groupBox1->Controls->Add(this->ClassCountBox);
@@ -196,85 +200,120 @@ namespace CppCLRWinformsProjekt {
 			this->groupBox1->Controls->Add(this->lbl_Momentum);
 			this->groupBox1->Controls->Add(this->txt_Momentum);
 			this->groupBox1->Controls->Add(this->chk_UseMomentum);
-			this->groupBox1->Location = System::Drawing::Point(830, 40);
-			this->groupBox1->Size = System::Drawing::Size(220, 300);
+
+			this->groupBox1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(162)));
+			this->groupBox1->Location = System::Drawing::Point(1159, 62);
+			this->groupBox1->Margin = System::Windows::Forms::Padding(4);
+			this->groupBox1->Name = L"groupBox1";
+			this->groupBox1->Padding = System::Windows::Forms::Padding(4);
+			this->groupBox1->Size = System::Drawing::Size(267, 260); // Momentum sığsın diye uzattık
+			this->groupBox1->TabIndex = 1;
+			this->groupBox1->TabStop = false;
 			this->groupBox1->Text = L"Network Architecture";
 
 			// Class Count
-			this->label1->Location = System::Drawing::Point(10, 25);
-			this->label1->Text = L"Sınıf Sayısı:";
-			this->label1->Size = System::Drawing::Size(80, 15);
-			this->ClassCountBox->Location = System::Drawing::Point(100, 22);
-			this->ClassCountBox->Size = System::Drawing::Size(50, 21);
+			this->label1->AutoSize = true;
+			this->label1->Location = System::Drawing::Point(144, 28);
+			this->label1->Text = L"Sınıf Sayısı";
+			this->ClassCountBox->FormattingEnabled = true;
 			this->ClassCountBox->Items->AddRange(gcnew cli::array<System::Object^>(6) { L"2", L"3", L"4", L"5", L"6", L"7" });
+			this->ClassCountBox->Location = System::Drawing::Point(13, 25);
+			this->ClassCountBox->Size = System::Drawing::Size(108, 25);
 			this->ClassCountBox->Text = L"2";
 
-			// Hidden Layers
-			this->lbl_Hidden->Location = System::Drawing::Point(10, 55);
-			this->lbl_Hidden->Text = L"Gizli Katman:";
-			this->lbl_Hidden->Size = System::Drawing::Size(80, 15);
-			this->txt_HiddenLayer->Location = System::Drawing::Point(100, 52);
-			this->txt_HiddenLayer->Size = System::Drawing::Size(50, 20);
+			// Hidden Layer
+			this->lbl_Hidden->AutoSize = true;
+			this->lbl_Hidden->Location = System::Drawing::Point(144, 60);
+			this->lbl_Hidden->Text = L"Gizli Katman";
+			this->txt_HiddenLayer->Location = System::Drawing::Point(13, 57);
+			this->txt_HiddenLayer->Size = System::Drawing::Size(108, 20);
 			this->txt_HiddenLayer->Text = L"1";
 
-			// Neurons
-			this->lbl_Neurons->Location = System::Drawing::Point(10, 85);
-			this->lbl_Neurons->Text = L"Nöron Sayısı:";
-			this->lbl_Neurons->Size = System::Drawing::Size(80, 15);
-			this->txt_NeuronCount->Location = System::Drawing::Point(100, 82);
-			this->txt_NeuronCount->Size = System::Drawing::Size(50, 20);
+			// Neuron Count
+			this->lbl_Neurons->AutoSize = true;
+			this->lbl_Neurons->Location = System::Drawing::Point(144, 90);
+			this->lbl_Neurons->Text = L"Nöron Sayısı";
+			this->txt_NeuronCount->Location = System::Drawing::Point(13, 87);
+			this->txt_NeuronCount->Size = System::Drawing::Size(108, 20);
 			this->txt_NeuronCount->Text = L"5";
 
 			// Learning Rate
-			this->lbl_LR->Location = System::Drawing::Point(10, 115);
-			this->lbl_LR->Text = L"Learn Rate:";
-			this->lbl_LR->Size = System::Drawing::Size(80, 15);
-			this->txt_LearnRate->Location = System::Drawing::Point(100, 112);
-			this->txt_LearnRate->Size = System::Drawing::Size(50, 20);
+			this->lbl_LR->AutoSize = true;
+			this->lbl_LR->Location = System::Drawing::Point(144, 120);
+			this->lbl_LR->Text = L"Learn Rate";
+			this->txt_LearnRate->Location = System::Drawing::Point(13, 117);
+			this->txt_LearnRate->Size = System::Drawing::Size(108, 20);
 			this->txt_LearnRate->Text = L"0.1";
 
-			// Momentum Value
-			this->lbl_Momentum->Location = System::Drawing::Point(10, 145);
-			this->lbl_Momentum->Text = L"Momentum:";
-			this->lbl_Momentum->Size = System::Drawing::Size(80, 15);
-			this->txt_Momentum->Location = System::Drawing::Point(100, 142);
-			this->txt_Momentum->Size = System::Drawing::Size(50, 20);
+			// Momentum
+			this->lbl_Momentum->AutoSize = true;
+			this->lbl_Momentum->Location = System::Drawing::Point(144, 150);
+			this->lbl_Momentum->Text = L"Momentum";
+			this->txt_Momentum->Location = System::Drawing::Point(13, 147);
+			this->txt_Momentum->Size = System::Drawing::Size(108, 20);
 			this->txt_Momentum->Text = L"0.5";
 
-			// Use Momentum Checkbox
-			this->chk_UseMomentum->Location = System::Drawing::Point(10, 175);
-			this->chk_UseMomentum->Size = System::Drawing::Size(150, 20);
+			// Checkbox Momentum
+			this->chk_UseMomentum->AutoSize = true;
+			this->chk_UseMomentum->Location = System::Drawing::Point(13, 175);
 			this->chk_UseMomentum->Text = L"Momentum Kullan";
-			this->chk_UseMomentum->Checked = false;
 
 			// Set Net Button
-			this->Set_Net->Location = System::Drawing::Point(10, 210);
-			this->Set_Net->Size = System::Drawing::Size(180, 35);
-			this->Set_Net->Text = L"Ağı Kur (Init)";
+			this->Set_Net->Location = System::Drawing::Point(13, 205);
+			this->Set_Net->Margin = System::Windows::Forms::Padding(4);
+			this->Set_Net->Name = L"Set_Net";
+			this->Set_Net->Size = System::Drawing::Size(175, 41);
+			this->Set_Net->Text = L"Network Setting";
+			this->Set_Net->UseVisualStyleBackColor = true;
 			this->Set_Net->Click += gcnew System::EventHandler(this, &Form_MultiLayerMomentum::Set_Net_Click);
 
 			// groupBox2 (Data Collection)
 			this->groupBox2->Controls->Add(this->label2);
 			this->groupBox2->Controls->Add(this->ClassNoBox);
-			this->groupBox2->Controls->Add(this->label3);
-			this->groupBox2->Location = System::Drawing::Point(830, 350);
-			this->groupBox2->Size = System::Drawing::Size(220, 100);
+			this->groupBox2->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point, static_cast<System::Byte>(162)));
+			this->groupBox2->Location = System::Drawing::Point(1172, 330);
+			this->groupBox2->Margin = System::Windows::Forms::Padding(4);
+			this->groupBox2->Name = L"groupBox2";
+			this->groupBox2->Padding = System::Windows::Forms::Padding(4);
+			this->groupBox2->Size = System::Drawing::Size(253, 75);
+			this->groupBox2->TabIndex = 2;
+			this->groupBox2->TabStop = false;
 			this->groupBox2->Text = L"Data Collection";
 
-			this->label2->Location = System::Drawing::Point(10, 30);
-			this->label2->Text = L"Etiket:";
-			this->ClassNoBox->Location = System::Drawing::Point(100, 27);
-			this->ClassNoBox->Size = System::Drawing::Size(50, 21);
+			this->label2->AutoSize = true;
+			this->label2->Location = System::Drawing::Point(131, 28);
+			this->label2->Text = L"Örnek Etiketi";
+			this->ClassNoBox->FormattingEnabled = true;
 			this->ClassNoBox->Items->AddRange(gcnew cli::array<System::Object^>(9) { L"1", L"2", L"3", L"4", L"5", L"6", L"7", L"8", L"9" });
+			this->ClassNoBox->Location = System::Drawing::Point(9, 25);
+			this->ClassNoBox->Size = System::Drawing::Size(99, 25);
 			this->ClassNoBox->Text = L"1";
-			this->label3->Location = System::Drawing::Point(10, 60);
-			this->label3->Text = L"Örnek Sayısı: 0";
+
+			// Label 3
 			this->label3->AutoSize = true;
+			this->label3->Location = System::Drawing::Point(1168, 410);
+			this->label3->Name = L"label3";
+			this->label3->Size = System::Drawing::Size(44, 16);
+			this->label3->Text = L"Samples Count: 0";
+
+			// textBox1 (LOG)
+			this->textBox1->Location = System::Drawing::Point(1159, 430);
+			this->textBox1->Margin = System::Windows::Forms::Padding(4);
+			this->textBox1->Multiline = true;
+			this->textBox1->Name = L"textBox1";
+			this->textBox1->Size = System::Drawing::Size(328, 300);
+			this->textBox1->TabIndex = 5;
 
 			// Menu
 			this->menuStrip1->Items->AddRange(gcnew cli::array<System::Windows::Forms::ToolStripItem^>(1) { this->processToolStripMenuItem });
+			this->menuStrip1->Location = System::Drawing::Point(0, 0);
+			this->menuStrip1->Name = L"menuStrip1";
+			this->menuStrip1->Size = System::Drawing::Size(1550, 28);
+			this->processToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array<System::Windows::Forms::ToolStripItem^>(3) {
+				this->trainingToolStripMenuItem, this->testingToolStripMenuItem, this->regressionToolStripMenuItem
+			});
 			this->processToolStripMenuItem->Text = L"Process";
-			this->processToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array<System::Windows::Forms::ToolStripItem^>(3) { this->trainingToolStripMenuItem, this->testingToolStripMenuItem, this->regressionToolStripMenuItem });
+
 			this->trainingToolStripMenuItem->Text = L"Training";
 			this->trainingToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form_MultiLayerMomentum::trainingToolStripMenuItem_Click);
 			this->testingToolStripMenuItem->Text = L"Testing";
@@ -283,15 +322,17 @@ namespace CppCLRWinformsProjekt {
 			this->regressionToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form_MultiLayerMomentum::regressionToolStripMenuItem_Click);
 
 			// Form
-			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
+			this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(1100, 700);
-			this->Controls->Add(this->groupBox1);
+			this->ClientSize = System::Drawing::Size(1550, 800);
+			this->Controls->Add(this->textBox1);
+			this->Controls->Add(this->label3);
 			this->Controls->Add(this->groupBox2);
+			this->Controls->Add(this->groupBox1);
 			this->Controls->Add(this->pictureBox1);
 			this->Controls->Add(this->menuStrip1);
 			this->MainMenuStrip = this->menuStrip1;
-			this->Name = L"Form_MultiLayer";
+			this->Name = L"Form_MultiLayerMomentum";
 			this->Text = L"Multi-Layer Network with Momentum";
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->EndInit();
 			this->groupBox1->ResumeLayout(false);
@@ -309,12 +350,14 @@ namespace CppCLRWinformsProjekt {
 		float scaleX = pictureBox1->Width / 2.0f;
 		float scaleY = pictureBox1->Height / 2.0f;
 
+		// 1. Veriyi Normalize Et
 		float* x = new float[inputDim];
 		x[0] = (float)(e->X - scaleX) / scaleX;
 		x[1] = (float)(scaleY - e->Y) / scaleY;
 
 		int label = Convert::ToInt32(ClassNoBox->Text) - 1;
 
+		// 2. Veriyi Kaydet
 		if (numSample == 0) {
 			numSample = 1;
 			Samples = new float[inputDim];
@@ -338,35 +381,40 @@ namespace CppCLRWinformsProjekt {
 			numSample++;
 		}
 
+		// 3. Ekrana ARTI (+) ÇİZ
 		Pen^ pen;
-		if (label == 0) pen = gcnew Pen(Color::Red, 3.0f);
-		else if (label == 1) pen = gcnew Pen(Color::Blue, 3.0f);
-		else pen = gcnew Pen(Color::Green, 3.0f);
+		switch (label) {
+		case 0: pen = gcnew Pen(Color::Black, 3.0f); break;
+		case 1: pen = gcnew Pen(Color::Red, 3.0f); break;
+		case 2: pen = gcnew Pen(Color::Blue, 3.0f); break;
+		case 3: pen = gcnew Pen(Color::Green, 3.0f); break;
+		default: pen = gcnew Pen(Color::Yellow, 3.0f);
+		}
 
-		pictureBox1->CreateGraphics()->DrawEllipse(pen, e->X - 3, e->Y - 3, 6, 6);
-		label3->Text = "Sample: " + Convert::ToString(numSample);
+		Graphics^ g = pictureBox1->CreateGraphics();
+		g->DrawLine(pen, e->X - 5, e->Y, e->X + 5, e->Y);
+		g->DrawLine(pen, e->X, e->Y - 5, e->X, e->Y + 5);
+
+		label3->Text = "Samples Count: " + Convert::ToString(numSample);
+		textBox1->Text += "Sample: " + Convert::ToString(x[0]) + ", " + Convert::ToString(x[1]) + " Class: " + label + "\r\n";
 		delete[] x;
 	}
 
 	private: System::Void pictureBox1_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e) {
-		Pen^ pen = gcnew Pen(Color::Black, 1.0f);
-		int cx = pictureBox1->Width / 2;
-		int cy = pictureBox1->Height / 2;
-		e->Graphics->DrawLine(pen, cx, 0, cx, pictureBox1->Height);
-		e->Graphics->DrawLine(pen, 0, cy, pictureBox1->Width, cy);
+		Pen^ axisPen = gcnew Pen(Color::Black, 2.0f);
+		float cx = (float)(pictureBox1->Width / 2);
+		float cy = (float)(pictureBox1->Height / 2);
+
+		e->Graphics->DrawLine(axisPen, cx, 0.0f, cx, (float)pictureBox1->Height);
+		e->Graphics->DrawLine(axisPen, 0.0f, cy, (float)pictureBox1->Width, cy);
 	}
 
 	private: System::Void Set_Net_Click(System::Object^ sender, System::EventArgs^ e) {
-		// Eski belleği temizle
-		if (Activations) delete[] Activations;
-		if (Errors) delete[] Errors;
-		if (Weights) delete[] Weights;
-		if (Biases) delete[] Biases;
+		if (Activations) delete[] Activations; if (Errors) delete[] Errors;
+		if (Weights) delete[] Weights; if (Biases) delete[] Biases;
 		if (Layers) delete[] Layers;
-		if (NeuronOffsets) delete[] NeuronOffsets;
-		if (WeightOffsets) delete[] WeightOffsets;
-		if (prevWeightChanges) delete[] prevWeightChanges;
-		if (prevBiasChanges) delete[] prevBiasChanges;
+		if (NeuronOffsets) delete[] NeuronOffsets; if (WeightOffsets) delete[] WeightOffsets;
+		if (prevWeightChanges) delete[] prevWeightChanges; if (prevBiasChanges) delete[] prevBiasChanges;
 
 		try {
 			int numHidden = Convert::ToInt32(txt_HiddenLayer->Text);
@@ -376,29 +424,23 @@ namespace CppCLRWinformsProjekt {
 			momentumValue = (float)Convert::ToDouble(txt_Momentum->Text);
 			useMomentum = chk_UseMomentum->Checked;
 
-			// Momentum değerini makul sınırlar içinde tut
+			// Sınırla
 			if (momentumValue < 0.0f) momentumValue = 0.0f;
 			if (momentumValue > 0.95f) momentumValue = 0.95f;
 
-			// Katman yapısını oluştur
 			TotalLayers = numHidden + 2;
 			Layers = new int[TotalLayers];
 			Layers[0] = inputDim;
 			for (int i = 1; i <= numHidden; i++) Layers[i] = numNeurons;
 			Layers[TotalLayers - 1] = numClasses;
 
-			// Her katmanın bellekteki yerini hesapla
 			NeuronOffsets = new int[TotalLayers];
 			WeightOffsets = new int[TotalLayers];
 
-			int total_neurons = 0;
-			int total_weights = 0;
-			int total_biases = 0;
-
+			int total_neurons = 0, total_weights = 0, total_biases = 0;
 			for (int i = 0; i < TotalLayers; i++) {
 				NeuronOffsets[i] = total_neurons;
 				total_neurons += Layers[i];
-
 				if (i < TotalLayers - 1) {
 					WeightOffsets[i] = total_weights;
 					total_weights += Layers[i] * Layers[i + 1];
@@ -406,16 +448,13 @@ namespace CppCLRWinformsProjekt {
 				}
 			}
 
-			// Bellek ayır
 			Activations = new float[total_neurons];
 			Errors = new float[total_neurons];
 			Weights = new float[total_weights];
 			Biases = new float[total_biases];
-
 			prevWeightChanges = new float[total_weights];
 			prevBiasChanges = new float[total_biases];
 
-			// Ağırlıkları küçük rastgele değerlerle başlat
 			float weight_scale = sqrt(2.0f / (float)inputDim);
 			for (int i = 0; i < total_weights; i++) {
 				Weights[i] = (((float)rand() / RAND_MAX) - 0.5f) * weight_scale;
@@ -426,44 +465,25 @@ namespace CppCLRWinformsProjekt {
 				prevBiasChanges[i] = 0.0f;
 			}
 
-			// Tüm değerleri sıfırla
-			for (int i = 0; i < total_neurons; i++) {
-				Activations[i] = 0.0f;
-				Errors[i] = 0.0f;
-			}
-
-			Set_Net->Text = "Ağ Hazır (" + TotalLayers + " L)";
-
+			Set_Net->Text = "Network is ready: (" + TotalLayers + " L)";
 			String^ durum = useMomentum ? "Aktif" : "Pasif";
+			textBox1->Text += "Network Created. Layers: " + TotalLayers + " Momentum: " + durum + "\r\n";
 			MessageBox::Show("Ağ Başarıyla Kuruldu!\nMomentum: " + durum);
 		}
-		catch (...) {
-			MessageBox::Show("Lütfen değerleri kontrol edin.");
-		}
+		catch (...) { MessageBox::Show("Değerleri kontrol edin."); }
 	}
 
 	private: System::Void trainingToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
-		if (numSample == 0 || TotalLayers == 0) {
-			MessageBox::Show("Lütfen önce veri ekleyin ve 'Ağı Kur' butonuna basın.");
-			return;
-		}
+		if (numSample == 0 || TotalLayers == 0) return;
 
 		try {
 			learningRate = (float)Convert::ToDouble(txt_LearnRate->Text);
 			momentumValue = (float)Convert::ToDouble(txt_Momentum->Text);
 			useMomentum = chk_UseMomentum->Checked;
-
-			// Öğrenme hızını kontrol et
-			if (learningRate <= 0.0f || learningRate > 1.0f) {
-				MessageBox::Show("Learning Rate 0 ile 1 arasında olmalı!");
-				return;
-			}
-
-			// Momentum değerini sınırla
 			if (momentumValue < 0.0f) momentumValue = 0.0f;
 			if (momentumValue > 0.95f) momentumValue = 0.95f;
 
-			// Momentum kullanılacaksa geçmiş değişimleri sıfırla
+			// Momentum sıfırlama
 			if (useMomentum) {
 				int total_w = 0, total_b = 0;
 				for (int i = 0; i < TotalLayers - 1; i++) {
@@ -482,244 +502,196 @@ namespace CppCLRWinformsProjekt {
 
 		do {
 			total_mse = 0;
-
 			for (int s = 0; s < numSample; s++) {
+				// 1. Forward
+				int input_start = NeuronOffsets[0];
+				for (int i = 0; i < inputDim; i++) Activations[input_start + i] = Samples[s * inputDim + i];
 
-				// İLERİ YAYILIM - Giriş katmanını doldur
-				int input_start_index = NeuronOffsets[0];
-				for (int i = 0; i < inputDim; i++) {
-					Activations[input_start_index + i] = Samples[s * inputDim + i];
-				}
-
-				// İLERİ YAYILIM - Katman katman ilerle
 				for (int l = 0; l < TotalLayers - 1; l++) {
-					int giris_baslangic = NeuronOffsets[l];
-					int cikis_baslangic = NeuronOffsets[l + 1];
-					int agirlik_baslangic = WeightOffsets[l];
+					int in_start = NeuronOffsets[l];
+					int out_start = NeuronOffsets[l + 1];
+					int w_start = WeightOffsets[l];
+					int in_count = Layers[l];
+					int out_count = Layers[l + 1];
 
-					int giris_sayisi = Layers[l];
-					int cikis_sayisi = Layers[l + 1];
-
-					for (int j = 0; j < cikis_sayisi; j++) {
+					for (int j = 0; j < out_count; j++) {
 						float net = 0;
-
-						for (int i = 0; i < giris_sayisi; i++) {
-							int w_index = agirlik_baslangic + (i * cikis_sayisi) + j;
-							net += Activations[giris_baslangic + i] * Weights[w_index];
+						for (int i = 0; i < in_count; i++) {
+							int w_idx = w_start + (i * out_count) + j;
+							net += Activations[in_start + i] * Weights[w_idx];
 						}
-
-						int b_index = cikis_baslangic + j - inputDim;
-						net += Biases[b_index];
-
-						Activations[cikis_baslangic + j] = sigmoid(net);
+						int b_idx = out_start + j - inputDim;
+						net += Biases[b_idx];
+						Activations[out_start + j] = sigmoid(net);
 					}
 				}
 
-				// GERİ YAYILIM - Çıkış katmanı hatasını hesapla
-				int son_katman_id = TotalLayers - 1;
-				int son_katman_baslangic = NeuronOffsets[son_katman_id];
-				int son_katman_sayisi = Layers[son_katman_id];
-				int hedef_sinif = (int)targets[s];
+				// 2. Error
+				int last_start = NeuronOffsets[TotalLayers - 1];
+				int last_count = Layers[TotalLayers - 1];
+				int target_class = (int)targets[s];
 
-				for (int k = 0; k < son_katman_sayisi; k++) {
-					float desired = (k == hedef_sinif) ? 1.0f : 0.0f;
-					float output = Activations[son_katman_baslangic + k];
-
+				for (int k = 0; k < last_count; k++) {
+					float desired = (k == target_class) ? 1.0f : 0.0f;
+					float output = Activations[last_start + k];
 					float error = desired - output;
 					total_mse += error * error;
-
-					Errors[son_katman_baslangic + k] = error * sigmoid_derivative(output);
+					Errors[last_start + k] = error * sigmoid_derivative(output);
 				}
 
-				// GERİ YAYILIM - Gizli katman hatalarını hesapla
+				// 3. Backprop
 				for (int l = TotalLayers - 2; l > 0; l--) {
-					int suanki_baslangic = NeuronOffsets[l];
-					int sonraki_baslangic = NeuronOffsets[l + 1];
-					int agirlik_baslangic = WeightOffsets[l];
-
-					int suanki_sayi = Layers[l];
-					int sonraki_sayi = Layers[l + 1];
-
-					for (int i = 0; i < suanki_sayi; i++) {
-						float hata_toplami = 0;
-
-						for (int j = 0; j < sonraki_sayi; j++) {
-							int w_index = agirlik_baslangic + (i * sonraki_sayi) + j;
-							hata_toplami += Errors[sonraki_baslangic + j] * Weights[w_index];
+					int curr_start = NeuronOffsets[l];
+					int next_start = NeuronOffsets[l + 1];
+					int w_start = WeightOffsets[l];
+					int curr_count = Layers[l];
+					int next_count = Layers[l + 1];
+					for (int i = 0; i < curr_count; i++) {
+						float sum = 0;
+						for (int j = 0; j < next_count; j++) {
+							int w_idx = w_start + (i * next_count) + j;
+							sum += Errors[next_start + j] * Weights[w_idx];
 						}
-
-						Errors[suanki_baslangic + i] = hata_toplami * sigmoid_derivative(Activations[suanki_baslangic + i]);
+						Errors[curr_start + i] = sum * sigmoid_derivative(Activations[curr_start + i]);
 					}
 				}
 
-				// AĞIRLIKLARI GÜNCELLE
+				// 4. Update with Momentum
 				for (int l = 0; l < TotalLayers - 1; l++) {
-					int giris_baslangic = NeuronOffsets[l];
-					int cikis_baslangic = NeuronOffsets[l + 1];
-					int agirlik_baslangic = WeightOffsets[l];
+					int in_start = NeuronOffsets[l];
+					int out_start = NeuronOffsets[l + 1];
+					int w_start = WeightOffsets[l];
+					int in_count = Layers[l];
+					int out_count = Layers[l + 1];
 
-					int giris_sayisi = Layers[l];
-					int cikis_sayisi = Layers[l + 1];
+					for (int j = 0; j < out_count; j++) {
+						float delta = Errors[out_start + j];
+						if (!sayi_gecerli_mi(delta)) delta = 0.0f;
 
-					for (int j = 0; j < cikis_sayisi; j++) {
-						float delta = Errors[cikis_baslangic + j];
+						int b_idx = out_start + j - inputDim;
+						float bias_grad = learningRate * delta;
+						float bias_mom = momentum_hesapla(prevBiasChanges[b_idx]);
+						float bias_change = sinirla(bias_grad + bias_mom, 10.0f);
+						Biases[b_idx] += bias_change;
+						prevBiasChanges[b_idx] = bias_change;
 
-						// Sayı geçerli mi kontrol et
-						if (sayi_gecerli_mi(delta) == false) delta = 0.0f;
+						for (int i = 0; i < in_count; i++) {
+							int w_idx = w_start + (i * out_count) + j;
+							float inputVal = Activations[in_start + i];
+							if (!sayi_gecerli_mi(inputVal)) inputVal = 0.0f;
 
-						// Bias güncelle
-						int b_index = cikis_baslangic + j - inputDim;
+							float w_grad = learningRate * delta * inputVal;
+							float w_mom = momentum_hesapla(prevWeightChanges[w_idx]);
+							float w_change = sinirla(w_grad + w_mom, 10.0f);
 
-						float bias_gradient = learningRate * delta;
-						float bias_momentum = momentum_hesapla(prevBiasChanges[b_index]);
-						float bias_degisim = bias_gradient + bias_momentum;
-
-						// Değişimi makul sınırlar içinde tut
-						bias_degisim = sinirla(bias_degisim, 10.0f);
-
-						Biases[b_index] += bias_degisim;
-						prevBiasChanges[b_index] = bias_degisim;
-
-						// Ağırlıkları güncelle
-						for (int i = 0; i < giris_sayisi; i++) {
-							int w_index = agirlik_baslangic + (i * cikis_sayisi) + j;
-							float giris_degeri = Activations[giris_baslangic + i];
-
-							// Sayı geçerli mi kontrol et
-							if (sayi_gecerli_mi(giris_degeri) == false) giris_degeri = 0.0f;
-
-							float weight_gradient = learningRate * delta * giris_degeri;
-							float weight_momentum = momentum_hesapla(prevWeightChanges[w_index]);
-							float weight_degisim = weight_gradient + weight_momentum;
-
-							// Değişimi makul sınırlar içinde tut
-							weight_degisim = sinirla(weight_degisim, 10.0f);
-
-							Weights[w_index] += weight_degisim;
-							prevWeightChanges[w_index] = weight_degisim;
+							Weights[w_idx] += w_change;
+							prevWeightChanges[w_idx] = w_change;
 						}
 					}
 				}
 			}
-
 			epoch++;
 		} while (epoch < max_epoch && total_mse > 0.001);
 
 		String^ durum = useMomentum ? "Aktif (" + momentumValue + ")" : "Pasif";
+		textBox1->Text += "Training Done. Epoch: " + epoch + " MSE: " + total_mse + " Momentum: " + durum + "\r\n";
 		MessageBox::Show("Eğitim Tamamlandı!\nEpoch: " + epoch + "\nHata (MSE): " + total_mse + "\nMomentum: " + durum);
 	}
 
 	private: System::Void testingToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
 		if (TotalLayers == 0) return;
 
-		Bitmap^ yuzey = gcnew Bitmap(pictureBox1->Width, pictureBox1->Height);
-
+		Bitmap^ surface = gcnew Bitmap(pictureBox1->Width, pictureBox1->Height);
 		float scaleX = pictureBox1->Width / 2.0f;
 		float scaleY = pictureBox1->Height / 2.0f;
 
-		// Ekranın her noktasını test et
 		for (int y = 0; y < pictureBox1->Height; y += 4) {
 			for (int x = 0; x < pictureBox1->Width; x += 4) {
-
 				float inputX = (float)(x - scaleX) / scaleX;
 				float inputY = (float)(scaleY - y) / scaleY;
 
-				int input_start = NeuronOffsets[0];
-				Activations[input_start + 0] = inputX;
-				Activations[input_start + 1] = inputY;
+				Activations[NeuronOffsets[0] + 0] = inputX;
+				Activations[NeuronOffsets[0] + 1] = inputY;
 
-				// İleri yayılım yap
 				for (int l = 0; l < TotalLayers - 1; l++) {
-					int giris_baslangic = NeuronOffsets[l];
-					int cikis_baslangic = NeuronOffsets[l + 1];
-					int agirlik_baslangic = WeightOffsets[l];
+					int in_start = NeuronOffsets[l];
+					int out_start = NeuronOffsets[l + 1];
+					int w_start = WeightOffsets[l];
+					int in_count = Layers[l];
+					int out_count = Layers[l + 1];
 
-					int giris_sayisi = Layers[l];
-					int cikis_sayisi = Layers[l + 1];
-
-					for (int j = 0; j < cikis_sayisi; j++) {
+					for (int j = 0; j < out_count; j++) {
 						float net = 0;
-						for (int i = 0; i < giris_sayisi; i++) {
-							int w_index = agirlik_baslangic + (i * cikis_sayisi) + j;
-							net += Activations[giris_baslangic + i] * Weights[w_index];
+						for (int i = 0; i < in_count; i++) {
+							int w_idx = w_start + (i * out_count) + j;
+							net += Activations[in_start + i] * Weights[w_idx];
 						}
-
-						int b_index = cikis_baslangic + j - inputDim;
-						if (b_index >= 0) net += Biases[b_index];
-
-						Activations[cikis_baslangic + j] = sigmoid(net);
+						int b_idx = out_start + j - inputDim;
+						net += Biases[b_idx];
+						Activations[out_start + j] = sigmoid(net);
 					}
 				}
 
-				// En yüksek değere sahip sınıfı bul
-				int son_katman = TotalLayers - 1;
-				int son_baslangic = NeuronOffsets[son_katman];
-				int son_sayi = Layers[son_katman];
+				int last_start = NeuronOffsets[TotalLayers - 1];
+				int last_count = Layers[TotalLayers - 1];
+				int winner = 0;
+				float max_score = Activations[last_start];
 
-				int kazanan_sinif = 0;
-				float en_yuksek_skor = Activations[son_baslangic + 0];
-
-				for (int k = 1; k < son_sayi; k++) {
-					if (Activations[son_baslangic + k] > en_yuksek_skor) {
-						en_yuksek_skor = Activations[son_baslangic + k];
-						kazanan_sinif = k;
+				for (int k = 1; k < last_count; k++) {
+					if (Activations[last_start + k] > max_score) {
+						max_score = Activations[last_start + k];
+						winner = k;
 					}
 				}
 
-				// Rengini belirle
-				Color renk;
-				if (kazanan_sinif == 0) renk = Color::FromArgb(50, 255, 0, 0);
-				else if (kazanan_sinif == 1) renk = Color::FromArgb(50, 0, 0, 255);
-				else if (kazanan_sinif == 2) renk = Color::FromArgb(50, 0, 255, 0);
-				else renk = Color::FromArgb(50, 255, 165, 0);
+				Color col;
+				if (winner == 0) col = Color::FromArgb(50, 255, 0, 0);
+				else if (winner == 1) col = Color::FromArgb(50, 0, 0, 255);
+				else if (winner == 2) col = Color::FromArgb(50, 0, 255, 0);
+				else col = Color::FromArgb(50, 255, 165, 0);
 
-				// 4x4 kare boya
-				for (int i = 0; i < 4; i++) {
-					for (int j = 0; j < 4; j++) {
-						if (x + i < pictureBox1->Width && y + j < pictureBox1->Height) {
-							yuzey->SetPixel(x + i, y + j, renk);
-						}
-					}
-				}
+				for (int i = 0; i < 4; i++)
+					for (int j = 0; j < 4; j++)
+						if (x + i < pictureBox1->Width && y + j < pictureBox1->Height)
+							surface->SetPixel(x + i, y + j, col);
 			}
 		}
 
-		pictureBox1->Image = yuzey;
+		Graphics^ g = Graphics::FromImage(surface);
+		Pen^ axisPen = gcnew Pen(Color::Black, 2.0f);
+		float cx = (float)(pictureBox1->Width / 2);
+		float cy = (float)(pictureBox1->Height / 2);
+		g->DrawLine(axisPen, cx, 0.0f, cx, (float)pictureBox1->Height);
+		g->DrawLine(axisPen, 0.0f, cy, (float)pictureBox1->Width, cy);
 
-		// Veri noktalarını tekrar çiz
-		Graphics^ cizici = Graphics::FromImage(yuzey);
 		for (int i = 0; i < numSample; i++) {
-			Pen^ kalem;
-			int sinif = (int)targets[i];
-
-			if (sinif == 0) kalem = gcnew Pen(Color::Red, 5);
-			else if (sinif == 1) kalem = gcnew Pen(Color::Blue, 5);
-			else if (sinif == 2) kalem = gcnew Pen(Color::Green, 5);
-			else kalem = gcnew Pen(Color::Orange, 5);
+			Pen^ p;
+			int t = (int)targets[i];
+			if (t == 0) p = gcnew Pen(Color::Black, 3);
+			else if (t == 1) p = gcnew Pen(Color::Red, 3);
+			else if (t == 2) p = gcnew Pen(Color::Blue, 3);
+			else p = gcnew Pen(Color::Green, 3);
 
 			int px = (int)(Samples[i * inputDim] * scaleX + scaleX);
 			int py = (int)(scaleY - Samples[i * inputDim + 1] * scaleY);
 
-			cizici->DrawEllipse(kalem, px - 3, py - 3, 6, 6);
+			// ARTI (+) ŞEKLİ
+			g->DrawLine(p, px - 5, py, px + 5, py);
+			g->DrawLine(p, px, py - 5, px, py + 5);
 		}
+		pictureBox1->Image = surface;
 	}
 
 	private: System::Void regressionToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
-		if (numSample < 2 || TotalLayers == 0) {
-			MessageBox::Show("Lütfen önce Ağı Kurun ve en az 2 nokta ekleyin.");
-			return;
-		}
-
+		if (numSample < 2 || TotalLayers == 0) return;
 		learningRate = 0.3f;
 
 		try {
 			momentumValue = (float)Convert::ToDouble(txt_Momentum->Text);
 			useMomentum = chk_UseMomentum->Checked;
-
 			if (momentumValue < 0.0f) momentumValue = 0.0f;
 			if (momentumValue > 0.95f) momentumValue = 0.95f;
 
-			// Momentum kullanılacaksa geçmiş değişimleri sıfırla
 			if (useMomentum) {
 				int total_w = 0, total_b = 0;
 				for (int i = 0; i < TotalLayers - 1; i++) {
@@ -739,73 +711,55 @@ namespace CppCLRWinformsProjekt {
 		do {
 			total_mse = 0;
 			for (int s = 0; s < numSample; s++) {
-
 				float rawX = Samples[s * inputDim];
 				float rawY = Samples[s * inputDim + 1];
-
-				// Veriyi 0.2-0.8 aralığına normalize et
 				float inputX = 0.2f + ((rawX + 1.0f) / 2.0f) * 0.6f;
 				float targetY = 0.2f + ((rawY + 1.0f) / 2.0f) * 0.6f;
 
 				Activations[NeuronOffsets[0] + 0] = inputX;
 				Activations[NeuronOffsets[0] + 1] = 1.0f;
 
-				// İleri yayılım
 				for (int l = 0; l < TotalLayers - 1; l++) {
-					int giris_bas = NeuronOffsets[l];
-					int cikis_bas = NeuronOffsets[l + 1];
-					int agirlik_bas = WeightOffsets[l];
-					int giris_sayisi = Layers[l];
-					int cikis_sayisi = Layers[l + 1];
-
-					for (int j = 0; j < cikis_sayisi; j++) {
+					int in_start = NeuronOffsets[l];
+					int out_start = NeuronOffsets[l + 1];
+					int w_start = WeightOffsets[l];
+					int in_count = Layers[l];
+					int out_count = Layers[l + 1];
+					for (int j = 0; j < out_count; j++) {
 						float net = 0;
-						for (int i = 0; i < giris_sayisi; i++) {
-							int w_idx = agirlik_bas + (i * cikis_sayisi) + j;
-							net += Activations[giris_bas + i] * Weights[w_idx];
+						for (int i = 0; i < in_count; i++) {
+							int w_idx = w_start + (i * out_count) + j;
+							net += Activations[in_start + i] * Weights[w_idx];
 						}
-
-						int b_idx = cikis_bas + j - inputDim;
-						if (b_idx >= 0) net += Biases[b_idx];
-
-						Activations[cikis_bas + j] = sigmoid(net);
+						int b_idx = out_start + j - inputDim;
+						net += Biases[b_idx];
+						Activations[out_start + j] = sigmoid(net);
 					}
 				}
 
-				// Çıkış hatasını hesapla
-				int son_katman = TotalLayers - 1;
-				int son_bas = NeuronOffsets[son_katman];
-
-				float outputY = Activations[son_bas + 0];
+				int last_start = NeuronOffsets[TotalLayers - 1];
+				float outputY = Activations[last_start];
 				float error = targetY - outputY;
 				total_mse += error * error;
+				Errors[last_start] = error * sigmoid_derivative(outputY);
+				for (int k = 1; k < Layers[TotalLayers - 1]; k++) Errors[last_start + k] = 0.0f;
 
-				Errors[son_bas + 0] = error * sigmoid_derivative(outputY);
-
-				// Diğer çıkışlar varsa sıfırla
-				for (int k = 1; k < Layers[son_katman]; k++) {
-					Errors[son_bas + k] = 0.0f;
-				}
-
-				// Geri yayılım
 				for (int l = TotalLayers - 2; l > 0; l--) {
 					int curr_start = NeuronOffsets[l];
 					int next_start = NeuronOffsets[l + 1];
 					int w_start = WeightOffsets[l];
 					int curr_count = Layers[l];
 					int next_count = Layers[l + 1];
-
 					for (int i = 0; i < curr_count; i++) {
-						float hata_toplami = 0;
+						float sum = 0;
 						for (int j = 0; j < next_count; j++) {
 							int w_idx = w_start + (i * next_count) + j;
-							hata_toplami += Errors[next_start + j] * Weights[w_idx];
+							sum += Errors[next_start + j] * Weights[w_idx];
 						}
-						Errors[curr_start + i] = hata_toplami * sigmoid_derivative(Activations[curr_start + i]);
+						Errors[curr_start + i] = sum * sigmoid_derivative(Activations[curr_start + i]);
 					}
 				}
 
-				// Ağırlıkları güncelle
 				for (int l = 0; l < TotalLayers - 1; l++) {
 					int in_start = NeuronOffsets[l];
 					int out_start = NeuronOffsets[l + 1];
@@ -815,120 +769,89 @@ namespace CppCLRWinformsProjekt {
 
 					for (int j = 0; j < out_count; j++) {
 						float delta = Errors[out_start + j];
-
-						// Sayı geçerli mi kontrol et
-						if (sayi_gecerli_mi(delta) == false) delta = 0.0f;
+						if (!sayi_gecerli_mi(delta)) delta = 0.0f;
 
 						int b_idx = out_start + j - inputDim;
 						if (b_idx >= 0) {
-							float bias_gradient = learningRate * delta;
-							float bias_momentum = momentum_hesapla(prevBiasChanges[b_idx]);
-							float bias_degisim = bias_gradient + bias_momentum;
-
-							bias_degisim = sinirla(bias_degisim, 10.0f);
-
-							Biases[b_idx] += bias_degisim;
-							prevBiasChanges[b_idx] = bias_degisim;
+							float bias_grad = learningRate * delta;
+							float bias_mom = momentum_hesapla(prevBiasChanges[b_idx]);
+							float bias_change = sinirla(bias_grad + bias_mom, 10.0f);
+							Biases[b_idx] += bias_change;
+							prevBiasChanges[b_idx] = bias_change;
 						}
 
 						for (int i = 0; i < in_count; i++) {
 							int w_idx = w_start + (i * out_count) + j;
 							float inputVal = Activations[in_start + i];
-
-							if (sayi_gecerli_mi(inputVal) == false) inputVal = 0.0f;
-
-							float weight_gradient = learningRate * delta * inputVal;
-							float weight_momentum = momentum_hesapla(prevWeightChanges[w_idx]);
-							float weight_degisim = weight_gradient + weight_momentum;
-
-							weight_degisim = sinirla(weight_degisim, 10.0f);
-
-							Weights[w_idx] += weight_degisim;
-							prevWeightChanges[w_idx] = weight_degisim;
+							if (!sayi_gecerli_mi(inputVal)) inputVal = 0.0f;
+							float w_grad = learningRate * delta * inputVal;
+							float w_mom = momentum_hesapla(prevWeightChanges[w_idx]);
+							float w_change = sinirla(w_grad + w_mom, 10.0f);
+							Weights[w_idx] += w_change;
+							prevWeightChanges[w_idx] = w_change;
 						}
 					}
 				}
 			}
 			epoch++;
-
 		} while (epoch < max_epoch && total_mse > 0.0005);
 
 		String^ durum = useMomentum ? "Aktif" : "Pasif";
 		MessageBox::Show("Regresyon Tamam!\nEpoch: " + epoch + "\nMSE: " + total_mse + "\nMomentum: " + durum);
 
-		// Sonucu çiz
-		Bitmap^ yuzey = gcnew Bitmap(pictureBox1->Width, pictureBox1->Height);
-		Graphics^ cizici = Graphics::FromImage(yuzey);
-		cizici->SmoothingMode = System::Drawing::Drawing2D::SmoothingMode::AntiAlias;
+		Bitmap^ surface = gcnew Bitmap(pictureBox1->Width, pictureBox1->Height);
+		Graphics^ g = Graphics::FromImage(surface);
+		g->SmoothingMode = System::Drawing::Drawing2D::SmoothingMode::AntiAlias;
 
-		float cx = (float)pictureBox1->Width / 2.0f;
-		float cy = (float)pictureBox1->Height / 2.0f;
+		Pen^ axisPen = gcnew Pen(Color::Black, 2.0f);
+		float cx = (float)(pictureBox1->Width / 2);
+		float cy = (float)(pictureBox1->Height / 2);
+		g->DrawLine(axisPen, cx, 0.0f, cx, (float)pictureBox1->Height);
+		g->DrawLine(axisPen, 0.0f, cy, (float)pictureBox1->Width, cy);
 
-		// Eksenleri çiz
-		Pen^ siyah_kalem = gcnew Pen(Color::Black, 1.0f);
-		cizici->DrawLine(siyah_kalem, cx, 0.0f, cx, (float)pictureBox1->Height);
-		cizici->DrawLine(siyah_kalem, 0.0f, cy, (float)pictureBox1->Width, cy);
-
-		// Veri noktalarını çiz
-		System::Drawing::SolidBrush^ mavi_firca = gcnew System::Drawing::SolidBrush(Color::Blue);
 		for (int i = 0; i < numSample; i++) {
-			float sx = Samples[i * inputDim];
-			float sy = Samples[i * inputDim + 1];
+			int px = (int)(Samples[i * inputDim] * cx + cx);
+			int py = (int)(cy - Samples[i * inputDim + 1] * cy);
 
-			int px = (int)(sx * cx + cx);
-			int py = (int)(cy - sy * cy);
-
-			cizici->FillEllipse(mavi_firca, px - 4, py - 4, 8, 8);
+			// ARTI (+) ŞEKLİ (Mavi)
+			Pen^ pBlue = gcnew Pen(Color::Blue, 3.0f);
+			g->DrawLine(pBlue, px - 5, py, px + 5, py);
+			g->DrawLine(pBlue, px, py - 5, px, py + 5);
 		}
 
-		// Regresyon eğrisini çiz
-		int onceki_x = -1;
-		int onceki_y = -1;
 		Pen^ redPen = gcnew Pen(Color::Red, 2.0f);
-
+		System::Drawing::Point prev(-1, -1);
 		for (int x = 0; x < pictureBox1->Width; x += 2) {
-
-			float normalizedX = (float)(x - cx) / cx;
-			float inputX = 0.2f + ((normalizedX + 1.0f) / 2.0f) * 0.6f;
-
-			Activations[NeuronOffsets[0] + 0] = inputX;
+			float normX = (float)(x - cx) / cx;
+			float inX = 0.2f + ((normX + 1.0f) / 2.0f) * 0.6f;
+			Activations[NeuronOffsets[0] + 0] = inX;
 			Activations[NeuronOffsets[0] + 1] = 1.0f;
 
-			// İleri yayılım
 			for (int l = 0; l < TotalLayers - 1; l++) {
-				int giris_bas = NeuronOffsets[l];
-				int cikis_bas = NeuronOffsets[l + 1];
-				int agirlik_bas = WeightOffsets[l];
-				int giris_say = Layers[l];
-				int cikis_say = Layers[l + 1];
-
-				for (int j = 0; j < cikis_say; j++) {
+				int in_start = NeuronOffsets[l];
+				int out_start = NeuronOffsets[l + 1];
+				int w_start = WeightOffsets[l];
+				int in_count = Layers[l];
+				int out_count = Layers[l + 1];
+				for (int j = 0; j < out_count; j++) {
 					float net = 0;
-					for (int i = 0; i < giris_say; i++) {
-						int w_idx = agirlik_bas + (i * cikis_say) + j;
-						net += Activations[giris_bas + i] * Weights[w_idx];
+					for (int i = 0; i < in_count; i++) {
+						int w_idx = w_start + (i * out_count) + j;
+						net += Activations[in_start + i] * Weights[w_idx];
 					}
-					int b_idx = cikis_bas + j - inputDim;
+					int b_idx = out_start + j - inputDim;
 					if (b_idx >= 0) net += Biases[b_idx];
-					Activations[cikis_bas + j] = sigmoid(net);
+					Activations[out_start + j] = sigmoid(net);
 				}
 			}
-
 			float outputY = Activations[NeuronOffsets[TotalLayers - 1]];
-			float normalizedY = ((outputY - 0.2f) / 0.6f) * 2.0f - 1.0f;
-			int py = (int)(cy - normalizedY * cy);
+			float normY = ((outputY - 0.2f) / 0.6f) * 2.0f - 1.0f;
+			int py = (int)(cy - normY * cy);
 
-			// Çizgiyi çiz
-			if (onceki_x != -1) {
-				if (py > 0 && py < pictureBox1->Height) {
-					cizici->DrawLine(redPen, onceki_x, onceki_y, x, py);
-				}
-			}
-			onceki_x = x;
-			onceki_y = py;
+			if (prev.X != -1 && py > 0 && py < pictureBox1->Height) g->DrawLine(redPen, prev, Point(x, py));
+			prev = Point(x, py);
 		}
-
-		pictureBox1->Image = yuzey;
+		pictureBox1->Image = surface;
 	}
 	};
 }

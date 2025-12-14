@@ -20,6 +20,6 @@ using namespace System::Windows::Forms;
 int main() {
 	Application::EnableVisualStyles();
 	Application::SetCompatibleTextRenderingDefault(false);
-	Application::Run(gcnew CppCLRWinformsProjekt::Form_MultiLayer());
+	Application::Run(gcnew CppCLRWinformsProjekt::Form_AutoEncoder());
 	return 0;
 }
