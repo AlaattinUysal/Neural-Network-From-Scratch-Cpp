@@ -241,7 +241,7 @@ namespace CppCLRWinformsProjekt {
 			this->Controls->Add(this->menuStrip1);
 			this->MainMenuStrip = this->menuStrip1;
 			this->Name = L"Form_MNIST";
-			this->Text = L"MNIST Digit Recognition (Standard Layout)";
+			this->Text = L"Form_MNIST";
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->EndInit();
 			this->groupBox1->ResumeLayout(false);
 			this->groupBox1->PerformLayout();

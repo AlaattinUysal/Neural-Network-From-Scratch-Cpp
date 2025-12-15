@@ -623,7 +623,6 @@ namespace CppCLRWinformsProjekt {
 					}
 				}
 
-				// HATA BURADAYDI - TEMÝZLENDÝ
 				Color col;
 				if (winner == 0) col = Color::FromArgb(50, 255, 0, 0);
 				else if (winner == 1) col = Color::FromArgb(50, 0, 0, 255);

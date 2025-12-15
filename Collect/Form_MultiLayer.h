@@ -409,7 +409,7 @@ namespace CppCLRWinformsProjekt {
 			for (int i = 0; i < total_biases; i++) Biases[i] = ((float)rand() / RAND_MAX) - 0.5f;
 
 			Set_Net->Text = "Network is Ready: ";
-			textBox1->Text += "Network Created. Layers: " + TotalLayers + "\r\n";
+			textBox1->Text += "Network Oluþturuldu. Layers: " + TotalLayers + "\r\n";
 		}
 		catch (...) { MessageBox::Show("Ayarlarý kontrol ediniz."); }
 	}
@@ -502,9 +502,8 @@ namespace CppCLRWinformsProjekt {
 			epoch++;
 		} while (epoch < max_epoch && total_mse > 0.001);
 
-		textBox1->Text += "Training Done. Epoch: " + epoch + " MSE: " + total_mse + "\r\n";
+		textBox1->Text += "Training iþlemi tamamlandý. Epoch: " + epoch + " MSE: " + total_mse + "\r\n";
 
-		// ÝSTEK: Epoch ve Hatayý Mesaj Kutusunda Göster
 		MessageBox::Show("Eðitim Tamamlandý!\nEpoch: " + epoch + "\nHata (MSE): " + total_mse);
 	}
 

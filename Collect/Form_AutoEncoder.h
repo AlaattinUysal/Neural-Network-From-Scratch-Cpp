@@ -242,7 +242,7 @@ namespace CppCLRWinformsProjekt {
 			this->Controls->Add(this->menuStrip1);
 			this->MainMenuStrip = this->menuStrip1;
 			this->Name = L"Form_AutoEncoder";
-			this->Text = L"AutoEncoder (Standard Layout)";
+			this->Text = L"Form_AutoEncoder";
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->EndInit();
 			this->groupBox1->ResumeLayout(false);
 			this->groupBox1->PerformLayout();

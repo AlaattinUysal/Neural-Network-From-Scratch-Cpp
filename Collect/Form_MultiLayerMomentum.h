@@ -645,10 +645,10 @@ namespace CppCLRWinformsProjekt {
 				}
 
 				Color col;
-				if (winner == 0) col = Color::FromArgb(50, 255, 0, 0);
-				else if (winner == 1) col = Color::FromArgb(50, 0, 0, 255);
-				else if (winner == 2) col = Color::FromArgb(50, 0, 255, 0);
-				else col = Color::FromArgb(50, 255, 165, 0);
+				if (winner == 0) col = Color::FromArgb(50, 0, 0, 0);
+				else if (winner == 1) col = Color::FromArgb(50, 255, 0, 0);
+				else if (winner == 2) col = Color::FromArgb(50, 0, 0, 255);
+				else col = Color::FromArgb(50, 0, 255, 0);
 
 				for (int i = 0; i < 4; i++)
 					for (int j = 0; j < 4; j++)
@@ -684,9 +684,9 @@ namespace CppCLRWinformsProjekt {
 
 	private: System::Void regressionToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
 		if (numSample < 2 || TotalLayers == 0) return;
-		learningRate = 0.3f;
 
 		try {
+			learningRate = (float)Convert::ToDouble(txt_LearnRate->Text); 
 			momentumValue = (float)Convert::ToDouble(txt_Momentum->Text);
 			useMomentum = chk_UseMomentum->Checked;
 			if (momentumValue < 0.0f) momentumValue = 0.0f;

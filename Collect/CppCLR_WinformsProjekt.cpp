@@ -9,8 +9,8 @@ using namespace System;
 
 #include "Form1.h"
 #include "Form_SingleLayer.h"
-#include "Form_MultiLayerMomentum.h"
 #include "Form_MultiLayer.h"
+#include "Form_MultiLayerMomentum.h"
 #include "Form_MNIST.h"
 #include "Form_AutoEncoder.h"
 
