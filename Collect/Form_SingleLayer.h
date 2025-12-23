@@ -1,10 +1,10 @@
-#pragma once
+ï»¿#pragma once
 #include "Process.h"
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "network.h"  // network.h dosyasýný tanýr
-#include <cmath>      // Matematik iþlemleri (exp, sqrt) için
+#include "network.h"  
+#include <cmath>      
 
 namespace CppCLRWinformsProjekt {
 
@@ -16,9 +16,9 @@ namespace CppCLRWinformsProjekt {
 	using namespace System::Drawing;
 	using namespace System::IO;
 
-	/// <summary>
-	/// Form_SingleLayer için özet
-	/// </summary>
+	
+	
+
 	public ref class Form_SingleLayer : public System::Windows::Forms::Form
 	{
 	public:
@@ -28,23 +28,23 @@ namespace CppCLRWinformsProjekt {
 		}
 
 	protected:
-		/// <summary>
-		/// Kaynaklarý temizle
-		/// </summary>
 		~Form_SingleLayer()
 		{
 			if (components)
 			{
 				delete components;
 			}
-			// Bellek Temizliði
+			// Bellek TemizliÄŸi
 			if (Samples != nullptr) delete[] Samples;
 			if (targets != nullptr) delete[] targets;
 			if (Weights != nullptr) delete[] Weights;
 			if (bias != nullptr) delete[] bias;
+			if (errorHistory != nullptr) delete[] errorHistory;
+
 		}
 
 	private: System::Windows::Forms::PictureBox^ pictureBox1;
+	private: System::Windows::Forms::PictureBox^ chartBox;
 	protected:
 	private: System::Windows::Forms::GroupBox^ groupBox1;
 	private: System::Windows::Forms::Button^ Set_Net;
@@ -59,19 +59,17 @@ namespace CppCLRWinformsProjekt {
 	private: System::Windows::Forms::Label^ label3;
 
 	private:
-		/// <summary>
-		/// Kullanýcý Tanýmlý Deðiþkenler
-		int  class_count = 0, numSample = 0, inputDim = 2;
+		int  class_count = 0, numSample = 0, inputDim = 2,  errorHistoryCount = 0;
 		float* Samples = nullptr;
 		float* targets = nullptr;
 		float* Weights = nullptr;
 		float* bias = nullptr;
+		float* errorHistory = nullptr; 
 
 	private: System::Windows::Forms::MenuStrip^ menuStrip1;
 	private: System::Windows::Forms::ToolStripMenuItem^ fileToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ readDataToolStripMenuItem;
 	private: System::Windows::Forms::OpenFileDialog^ openFileDialog1;
-	private: System::Windows::Forms::TextBox^ textBox1;
 	private: System::Windows::Forms::ToolStripMenuItem^ saveDataToolStripMenuItem;
 	private: System::Windows::Forms::SaveFileDialog^ saveFileDialog1;
 	private: System::Windows::Forms::ToolStripMenuItem^ processToolStripMenuItem;
@@ -79,13 +77,11 @@ namespace CppCLRWinformsProjekt {
 	private: System::Windows::Forms::ToolStripMenuItem^ testingToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ regressionToolStripMenuItem;
 
-		   /// </summary>
+		 
 		   System::ComponentModel::Container^ components;
 
 #pragma region Windows Form Designer generated code
-		   /// <summary>
-		   /// Tasarýmcý desteði için gerekli metot.
-		   /// </summary>
+		   /// TasarÄ±mcÄ± desteÄŸi iÃ§in gerekli metot.
 		   void InitializeComponent(void)
 		   {
 			   this->pictureBox1 = (gcnew System::Windows::Forms::PictureBox());
@@ -106,7 +102,7 @@ namespace CppCLRWinformsProjekt {
 			   this->testingToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			   this->regressionToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			   this->openFileDialog1 = (gcnew System::Windows::Forms::OpenFileDialog());
-			   this->textBox1 = (gcnew System::Windows::Forms::TextBox());
+			   this->chartBox = (gcnew System::Windows::Forms::PictureBox());
 			   this->saveFileDialog1 = (gcnew System::Windows::Forms::SaveFileDialog());
 			   (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->BeginInit();
 			   this->groupBox1->SuspendLayout();
@@ -123,7 +119,6 @@ namespace CppCLRWinformsProjekt {
 			   this->pictureBox1->Size = System::Drawing::Size(1069, 711);
 			   this->pictureBox1->TabIndex = 0;
 			   this->pictureBox1->TabStop = false;
-			   // DÜZELTME: Form1 yerine Form_SingleLayer yazýldý
 			   this->pictureBox1->Click += gcnew System::EventHandler(this, &Form_SingleLayer::pictureBox1_Click);
 			   this->pictureBox1->Paint += gcnew System::Windows::Forms::PaintEventHandler(this, &Form_SingleLayer::pictureBox1_Paint);
 			   this->pictureBox1->MouseClick += gcnew System::Windows::Forms::MouseEventHandler(this, &Form_SingleLayer::pictureBox1_MouseClick);
@@ -134,7 +129,7 @@ namespace CppCLRWinformsProjekt {
 			   this->groupBox1->Controls->Add(this->label1);
 			   this->groupBox1->Controls->Add(this->ClassCountBox);
 			   this->groupBox1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 8.25F, System::Drawing::FontStyle::Bold, System::Drawing::GraphicsUnit::Point,
-				   static_cast<System::Byte>(162)));
+				static_cast<System::Byte>(162)));
 			   this->groupBox1->Location = System::Drawing::Point(1159, 62);
 			   this->groupBox1->Margin = System::Windows::Forms::Padding(4);
 			   this->groupBox1->Name = L"groupBox1";
@@ -143,7 +138,6 @@ namespace CppCLRWinformsProjekt {
 			   this->groupBox1->TabIndex = 1;
 			   this->groupBox1->TabStop = false;
 			   this->groupBox1->Text = L"Network Architecture";
-			   // DÜZELTME
 			   this->groupBox1->Enter += gcnew System::EventHandler(this, &Form_SingleLayer::groupBox1_Enter);
 			   // 
 			   // Set_Net
@@ -155,7 +149,6 @@ namespace CppCLRWinformsProjekt {
 			   this->Set_Net->TabIndex = 2;
 			   this->Set_Net->Text = L"Network Setting";
 			   this->Set_Net->UseVisualStyleBackColor = true;
-			   // DÜZELTME
 			   this->Set_Net->Click += gcnew System::EventHandler(this, &Form_SingleLayer::Set_Net_Click);
 			   // 
 			   // label1
@@ -166,21 +159,18 @@ namespace CppCLRWinformsProjekt {
 			   this->label1->Name = L"label1";
 			   this->label1->Size = System::Drawing::Size(88, 17);
 			   this->label1->TabIndex = 1;
-			   this->label1->Text = L"Sýnýf Sayýsý";
-			   // DÜZELTME
+			   this->label1->Text = L"SÄ±nÄ±f SayÄ±sÄ±";
 			   this->label1->Click += gcnew System::EventHandler(this, &Form_SingleLayer::label1_Click);
 			   // 
 			   // ClassCountBox
 			   // 
 			   this->ClassCountBox->FormattingEnabled = true;
-			   this->ClassCountBox->Items->AddRange(gcnew cli::array< System::Object^  >(6) { L"2", L"3", L"4", L"5", L"6", L"7" });
-			   this->ClassCountBox->Location = System::Drawing::Point(13, 25);
+			   this->ClassCountBox->Items->AddRange(gcnew cli::array< System::Object^  >(7) { L"1", L"2", L"3", L"4", L"5", L"6", L"7" });			   this->ClassCountBox->Location = System::Drawing::Point(13, 25);
 			   this->ClassCountBox->Margin = System::Windows::Forms::Padding(4);
 			   this->ClassCountBox->Name = L"ClassCountBox";
 			   this->ClassCountBox->Size = System::Drawing::Size(108, 25);
 			   this->ClassCountBox->TabIndex = 0;
-			   this->ClassCountBox->Text = L"2";
-			   // DÜZELTME
+			   this->ClassCountBox->Text = L"1";
 			   this->ClassCountBox->SelectedIndexChanged += gcnew System::EventHandler(this, &Form_SingleLayer::ClassCountBox_SelectedIndexChanged);
 			   // 
 			   // groupBox2
@@ -197,7 +187,6 @@ namespace CppCLRWinformsProjekt {
 			   this->groupBox2->TabIndex = 2;
 			   this->groupBox2->TabStop = false;
 			   this->groupBox2->Text = L"Data Collection";
-			   // DÜZELTME
 			   this->groupBox2->Enter += gcnew System::EventHandler(this, &Form_SingleLayer::groupBox2_Enter);
 			   // 
 			   // label2
@@ -208,8 +197,7 @@ namespace CppCLRWinformsProjekt {
 			   this->label2->Name = L"label2";
 			   this->label2->Size = System::Drawing::Size(102, 17);
 			   this->label2->TabIndex = 1;
-			   this->label2->Text = L"Örnek Etiketi";
-			   // DÜZELTME
+			   this->label2->Text = L"Ã–rnek Etiketi";
 			   this->label2->Click += gcnew System::EventHandler(this, &Form_SingleLayer::label2_Click);
 			   // 
 			   // ClassNoBox
@@ -225,7 +213,6 @@ namespace CppCLRWinformsProjekt {
 			   this->ClassNoBox->Size = System::Drawing::Size(99, 25);
 			   this->ClassNoBox->TabIndex = 0;
 			   this->ClassNoBox->Text = L"1";
-			   // DÜZELTME
 			   this->ClassNoBox->SelectedIndexChanged += gcnew System::EventHandler(this, &Form_SingleLayer::ClassNoBox_SelectedIndexChanged);
 			   // 
 			   // label3
@@ -237,7 +224,6 @@ namespace CppCLRWinformsProjekt {
 			   this->label3->Size = System::Drawing::Size(44, 16);
 			   this->label3->TabIndex = 3;
 			   this->label3->Text = L"label3";
-			   // DÜZELTME
 			   this->label3->Click += gcnew System::EventHandler(this, &Form_SingleLayer::label3_Click);
 			   // 
 			   // menuStrip1
@@ -252,7 +238,6 @@ namespace CppCLRWinformsProjekt {
 			   this->menuStrip1->Size = System::Drawing::Size(1924, 28);
 			   this->menuStrip1->TabIndex = 4;
 			   this->menuStrip1->Text = L"menuStrip1";
-			   // DÜZELTME
 			   this->menuStrip1->ItemClicked += gcnew System::Windows::Forms::ToolStripItemClickedEventHandler(this, &Form_SingleLayer::menuStrip1_ItemClicked);
 			   // 
 			   // fileToolStripMenuItem
@@ -264,7 +249,6 @@ namespace CppCLRWinformsProjekt {
 			   this->fileToolStripMenuItem->Name = L"fileToolStripMenuItem";
 			   this->fileToolStripMenuItem->Size = System::Drawing::Size(46, 24);
 			   this->fileToolStripMenuItem->Text = L"File";
-			   // DÜZELTME
 			   this->fileToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form_SingleLayer::fileToolStripMenuItem_Click);
 			   // 
 			   // readDataToolStripMenuItem
@@ -272,7 +256,6 @@ namespace CppCLRWinformsProjekt {
 			   this->readDataToolStripMenuItem->Name = L"readDataToolStripMenuItem";
 			   this->readDataToolStripMenuItem->Size = System::Drawing::Size(164, 26);
 			   this->readDataToolStripMenuItem->Text = L"Read_Data";
-			   // DÜZELTME
 			   this->readDataToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form_SingleLayer::readDataToolStripMenuItem_Click);
 			   // 
 			   // saveDataToolStripMenuItem
@@ -280,7 +263,6 @@ namespace CppCLRWinformsProjekt {
 			   this->saveDataToolStripMenuItem->Name = L"saveDataToolStripMenuItem";
 			   this->saveDataToolStripMenuItem->Size = System::Drawing::Size(164, 26);
 			   this->saveDataToolStripMenuItem->Text = L"Save_Data";
-			   // DÜZELTME
 			   this->saveDataToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form_SingleLayer::saveDataToolStripMenuItem_Click);
 			   // 
 			   // processToolStripMenuItem
@@ -292,7 +274,6 @@ namespace CppCLRWinformsProjekt {
 			   this->processToolStripMenuItem->Name = L"processToolStripMenuItem";
 			   this->processToolStripMenuItem->Size = System::Drawing::Size(72, 24);
 			   this->processToolStripMenuItem->Text = L"Process";
-			   // DÜZELTME
 			   this->processToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form_SingleLayer::processToolStripMenuItem_Click);
 			   // 
 			   // trainingToolStripMenuItem
@@ -300,7 +281,6 @@ namespace CppCLRWinformsProjekt {
 			   this->trainingToolStripMenuItem->Name = L"trainingToolStripMenuItem";
 			   this->trainingToolStripMenuItem->Size = System::Drawing::Size(164, 26);
 			   this->trainingToolStripMenuItem->Text = L"Training";
-			   // DÜZELTME
 			   this->trainingToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form_SingleLayer::trainingToolStripMenuItem_Click);
 			   // 
 			   // testingToolStripMenuItem
@@ -308,7 +288,6 @@ namespace CppCLRWinformsProjekt {
 			   this->testingToolStripMenuItem->Name = L"testingToolStripMenuItem";
 			   this->testingToolStripMenuItem->Size = System::Drawing::Size(164, 26);
 			   this->testingToolStripMenuItem->Text = L"Testing";
-			   // DÜZELTME
 			   this->testingToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form_SingleLayer::testingToolStripMenuItem_Click);
 			   // 
 			   // regressionToolStripMenuItem
@@ -316,25 +295,21 @@ namespace CppCLRWinformsProjekt {
 			   this->regressionToolStripMenuItem->Name = L"regressionToolStripMenuItem";
 			   this->regressionToolStripMenuItem->Size = System::Drawing::Size(164, 26);
 			   this->regressionToolStripMenuItem->Text = L"Regression";
-			   // DÜZELTME
 			   this->regressionToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form_SingleLayer::regressionToolStripMenuItem_Click);
 			   // 
 			   // openFileDialog1
 			   // 
 			   this->openFileDialog1->FileName = L"openFileDialog1";
-			   // DÜZELTME
 			   this->openFileDialog1->FileOk += gcnew System::ComponentModel::CancelEventHandler(this, &Form_SingleLayer::openFileDialog1_FileOk);
 			   // 
-			   // textBox1
+			   // chartBox
 			   // 
-			   this->textBox1->Location = System::Drawing::Point(1159, 368);
-			   this->textBox1->Margin = System::Windows::Forms::Padding(4);
-			   this->textBox1->Multiline = true;
-			   this->textBox1->Name = L"textBox1";
-			   this->textBox1->Size = System::Drawing::Size(328, 347);
-			   this->textBox1->TabIndex = 5;
-			   // DÜZELTME
-			   this->textBox1->TextChanged += gcnew System::EventHandler(this, &Form_SingleLayer::textBox1_TextChanged);
+			   this->chartBox->BackColor = System::Drawing::Color::WhiteSmoke;
+			   this->chartBox->Location = System::Drawing::Point(1159, 368);
+			   this->chartBox->Name = L"chartBox";
+			   this->chartBox->Size = System::Drawing::Size(328, 347);
+			   this->chartBox->TabIndex = 5;
+			   this->chartBox->TabStop = false;
 			   // 
 			   // saveFileDialog1
 			   // 
@@ -345,7 +320,7 @@ namespace CppCLRWinformsProjekt {
 			   this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
 			   this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			   this->ClientSize = System::Drawing::Size(1924, 779);
-			   this->Controls->Add(this->textBox1);
+			   this->Controls->Add(this->chartBox);
 			   this->Controls->Add(this->label3);
 			   this->Controls->Add(this->groupBox2);
 			   this->Controls->Add(this->groupBox1);
@@ -366,8 +341,8 @@ namespace CppCLRWinformsProjekt {
 			   this->PerformLayout();
 
 		   }
-		   void draw_sample(int temp_x, int temp_y, int label) {
-			   Pen^ pen;// = gcnew Pen(Color::Black, 3.0f);
+		   void draw_sample(Graphics^ g, int temp_x, int temp_y, int label) {
+			   Pen^ pen;
 			   switch (label) {
 			   case 0: pen = gcnew Pen(Color::Black, 3.0f); break;
 			   case 1: pen = gcnew Pen(Color::Red, 3.0f); break;
@@ -376,50 +351,51 @@ namespace CppCLRWinformsProjekt {
 			   case 4: pen = gcnew Pen(Color::Yellow, 3.0f); break;
 			   case 5: pen = gcnew Pen(Color::Orange, 3.0f); break;
 			   default: pen = gcnew Pen(Color::YellowGreen, 3.0f);
-			   }//switch
-			   pictureBox1->CreateGraphics()->DrawLine(pen, temp_x - 5, temp_y, temp_x + 5, temp_y);
-			   pictureBox1->CreateGraphics()->DrawLine(pen, temp_x, temp_y - 5, temp_x, temp_y + 5);
+			   }
+			   // Graphics nesnesine Ã§iz (Bitmap'e ya da direkt pictureBox'a)
+			   g->DrawLine(pen, temp_x - 5, temp_y, temp_x + 5, temp_y);
+			   g->DrawLine(pen, temp_x, temp_y - 5, temp_x, temp_y + 5);
 		   }//draw_sample
 
 		   // ---------------------------------------------------------
    // EKLENECEK KOD 1: LineCiz Fonksiyonu
-   // Amacý: Aðýrlýklarý (w) kullanarak doðruyu matematiksel olarak çizer.
+   // AmacÄ±: AÄŸÄ±rlÄ±klarÄ± (w) kullanarak doÄŸruyu matematiksel olarak Ã§izer.
    // ---------------------------------------------------------
 		   void LineCiz(float* w, float* b, int width, int height) {
 			   Bitmap^ surface = gcnew Bitmap(pictureBox1->Width, pictureBox1->Height);
 			   Graphics^ g = Graphics::FromImage(surface);
 			   g->Clear(Color::White);
 
-			   // 1. Eksenleri Çiz (Siyah Artý Ýþareti)
+			   // 1. Eksenleri Ã‡iz (Siyah ArtÄ± Ä°ÅŸareti)
 			   Pen^ axisPen = gcnew Pen(Color::Black, 2.0f);
 			   int cx = width / 2; // Merkez X
 			   int cy = height / 2; // Merkez Y
 			   g->DrawLine(axisPen, cx, 0, cx, height);
 			   g->DrawLine(axisPen, 0, cy, width, cy);
 
-			   // 2. Doðruyu Çiz (Eðer aðýrlýklar varsa)
-			   // Formül: w1*x + w2*y + bias = 0  =>  y = -(w1*x + bias) / w2
+			   // 2. DoÄŸruyu Ã‡iz (EÄŸer aÄŸÄ±rlÄ±klar varsa)
+			   // FormÃ¼l: w1*x + w2*y + bias = 0Â  =>Â  y = -(w1*x + bias) / w2
 			   if (w != nullptr && w[1] != 0) {
 				   Pen^ linePen = gcnew Pen(Color::Red, 3.0f);
 
-				   // Ekranýn en solu (-cx) için Y deðerini hesapla
+				   // EkranÄ±n en solu (-cx) iÃ§in Y deÄŸerini hesapla
 				   float x1 = (float)-cx;
 				   float y1 = -(w[0] * x1 + b[0]) / w[1];
 
-				   // Ekranýn en saðý (+cx) için Y deðerini hesapla
+				   // EkranÄ±n en saÄŸÄ± (+cx) iÃ§in Y deÄŸerini hesapla
 				   float x2 = (float)cx;
 				   float y2 = -(w[0] * x2 + b[0]) / w[1];
 
-				   // Koordinatlarý ekran pikseline çevirip çizgiyi çek
+				   // KoordinatlarÄ± ekran pikseline Ã§evirip Ã§izgiyi Ã§ek
 				   g->DrawLine(linePen, (int)(x1 + cx), (int)(cy - y1),
 					   (int)(x2 + cx), (int)(cy - y2));
 			   }
 
-			   // 3. Noktalarý Tekrar Çiz (Çizgi noktalarýn üstünde kalmasýn diye)
+			   // 3. NoktalarÄ± Tekrar Ã‡iz (Ã‡izgi noktalarÄ±n Ã¼stÃ¼nde kalmasÄ±n diye)
 			   for (int i = 0; i < numSample; i++) {
 				   Pen^ p;
-				   if (targets[i] == 1 || targets[i] == 0) p = gcnew Pen(Color::Red, 3.0f); // Sýnýf 1
-				   else p = gcnew Pen(Color::Blue, 3.0f); // Sýnýf 2
+				   if (targets[i] == 1 || targets[i] == 0) p = gcnew Pen(Color::Red, 3.0f); // SÄ±nÄ±f 1
+				   else p = gcnew Pen(Color::Blue, 3.0f); // SÄ±nÄ±f 2
 
 				   int px = (int)Samples[i * inputDim] + cx;
 				   int py = cy - (int)Samples[i * inputDim + 1];
@@ -427,10 +403,87 @@ namespace CppCLRWinformsProjekt {
 			   }
 			   pictureBox1->Image = surface;
 		   }
+		   void DrawErrorChart() {
+			   if (errorHistoryCount < 2) return;
+
+			   Bitmap^ chartBmp = gcnew Bitmap(chartBox->Width, chartBox->Height);
+			   Graphics^ gg = Graphics::FromImage(chartBmp);
+			   gg->Clear(Color::White);
+			   gg->SmoothingMode = System::Drawing::Drawing2D::SmoothingMode::AntiAlias;
+
+			   int marginLeft = 50;
+			   int marginRight = 20;
+			   int marginTop = 40;
+			   int marginBottom = 40;
+			   int graphWidth = chartBox->Width - marginLeft - marginRight;
+			   int graphHeight = chartBox->Height - marginTop - marginBottom;
+
+			   // Ã‡erÃ§eve Ã§iz
+			   Pen^ framePen = gcnew Pen(Color::Black, 2);
+			   gg->DrawRectangle(framePen, marginLeft, marginTop, graphWidth, graphHeight);
+
+			   // Grid Ã§izgileri (5 yatay Ã§izgi)
+			   Pen^ gridPen = gcnew Pen(Color::LightGray, 1);
+			   for (int i = 1; i < 5; i++) {
+				   int y = marginTop + (graphHeight * i / 5);
+				   gg->DrawLine(gridPen, marginLeft, y, marginLeft + graphWidth, y);
+			   }
+
+			   // Maksimum hatayÄ± bul
+			   float maxVal = 0;
+			   for (int i = 0; i < errorHistoryCount; i++) {
+				   if (errorHistory[i] > maxVal) maxVal = errorHistory[i];
+			   }
+
+			   // GÃ¼venli bÃ¶lme iÃ§in kontrol
+			   if (maxVal < 0.0001f) maxVal = 0.0001f;
+
+			   // Hata Ã§izgisini Ã§iz (NORMALIZE EDÄ°LMÄ°Åž)
+			   Pen^ penBlue = gcnew Pen(Color::DodgerBlue, 2.5f);
+			   float stepX = (float)graphWidth / (float)(errorHistoryCount - 1);
+
+			   for (int i = 0; i < errorHistoryCount - 1; i++) {
+				   float x1 = marginLeft + i * stepX;
+				   // Ã–NEMLÄ°: Hata deÄŸerini maksimuma gÃ¶re normalize et
+				   float normalizedY1 = errorHistory[i] / maxVal;
+				   float y1 = marginTop + graphHeight - (normalizedY1 * graphHeight);
+
+				   float x2 = marginLeft + (i + 1) * stepX;
+				   float normalizedY2 = errorHistory[i + 1] / maxVal;
+				   float y2 = marginTop + graphHeight - (normalizedY2 * graphHeight);
+
+				   gg->DrawLine(penBlue, x1, y1, x2, y2);
+			   }
+
+			   // BaÅŸlÄ±k
+			   System::Drawing::Font^ fontTitle = gcnew System::Drawing::Font("Arial", 11, FontStyle::Bold);
+			   gg->DrawString("Egitim Hatasi (MSE)", fontTitle, Brushes::Black, marginLeft + 5, 8);
+
+			   // Bilgi kutusu
+			   System::Drawing::Font^ fontInfo = gcnew System::Drawing::Font("Arial", 8);
+			   String^ info = String::Format("Epoch: {0}\nMax Hata: {1:F6}\nSon Hata: {2:F6}",
+				   errorHistoryCount, maxVal, errorHistory[errorHistoryCount - 1]);
+
+			   // Bilgi kutusunun arka planÄ±
+			   RectangleF infoRect = RectangleF(marginLeft + graphWidth - 120, marginTop + 5, 115, 55);
+			   gg->FillRectangle(gcnew SolidBrush(Color::FromArgb(230, 255, 255, 255)), infoRect);
+			   gg->DrawRectangle(gcnew Pen(Color::Gray, 1), Rectangle::Round(infoRect));
+			   gg->DrawString(info, fontInfo, Brushes::DarkBlue, marginLeft + graphWidth - 115, marginTop + 10);
+
+			   // Y ekseni etiketleri (5 tane)
+			   System::Drawing::Font^ fontAxis = gcnew System::Drawing::Font("Arial", 7);
+			   for (int i = 0; i <= 5; i++) {
+				   float val = maxVal * (5 - i) / 5.0f;
+				   int y = marginTop + (graphHeight * i / 5);
+				   gg->DrawString(String::Format("{0:F4}", val), fontAxis, Brushes::Black, 2, y - 7);
+			   }
+
+			   chartBox->Image = chartBmp;
+		   }
 #pragma endregion
 	private: System::Void pictureBox1_MouseClick(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e) {
 		if (class_count == 0)
-			MessageBox::Show("The Network Architeture should be firtly set up");
+			MessageBox::Show("Networku kurunuz");
 		else {
 			float* x = new float[inputDim];
 			int temp_x = (System::Convert::ToInt32(e->X));
@@ -440,10 +493,10 @@ namespace CppCLRWinformsProjekt {
 			int label;
 			int numLabel = Convert::ToInt32(ClassNoBox->Text);
 			if (numLabel > class_count)
-				MessageBox::Show("The class label cannot be greater than the maximum number of classes.");
+				MessageBox::Show("SÄ±nÄ±f etiketi, maksimum sÄ±nÄ±f sayÄ±sÄ±ndan fazla olamaz.");
 			else {
-				label = numLabel - 1; //Dögüler 0 dan baþladýðýndan, label deðeri 0 dan baþlamasý için bir eksiði alýnmýþtýr
-				if (numSample == 0) { //Dinamik alýnan ilk örnek için sadece
+				label = numLabel - 1; //DÃ¶gÃ¼ler 0 dan baÅŸladÄ±ÄŸÄ±ndan, label deÄŸeri 0 dan baÅŸlamasÄ± iÃ§in bir eksiÄŸi alÄ±nmÄ±ÅŸtÄ±r
+				if (numSample == 0) { //Dinamik alÄ±nan ilk Ã¶rnek iÃ§in sadece
 					numSample = 1;
 					Samples = new float[numSample * inputDim]; targets = new float[numSample];
 					for (int i = 0; i < inputDim; i++)
@@ -455,14 +508,14 @@ namespace CppCLRWinformsProjekt {
 					Samples = Add_Data(Samples, numSample, x, inputDim);
 					targets = Add_Labels(targets, numSample, label);
 				}//else
-				draw_sample(temp_x, temp_y, label);
+				draw_sample(pictureBox1->CreateGraphics(), temp_x, temp_y, label);
 				label3->Text = "Samples Count: " + System::Convert::ToString(numSample);
 				delete[] x;
 			}//else of if (Etiket ...
 		}//else
 	}//pictureMouseClick
 	private: System::Void pictureBox1_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e) {
-		//Ana eksen doðrularini cizdir
+		//Ana eksen doÄŸrularini cizdir
 		Pen^ pen = gcnew Pen(Color::Black, 3.0f);
 		int center_width, center_height;
 		center_width = (int)(pictureBox1->Width / 2);
@@ -489,8 +542,8 @@ namespace CppCLRWinformsProjekt {
 	}//Set_Net
 	private: System::Void readDataToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
 		char** c = new char* [2];
-		// Veri Kümesini okunacak 
-		MessageBox::Show("Veri Kümesini Yükleyin");
+		// Veri KÃ¼mesini okunacakÂ 
+		MessageBox::Show("Veri KÃ¼mesini YÃ¼kleyin");
 		c[0] = "../Data/Samples.txt";
 		c[1] = "../Data/weights.txt";
 		std::ifstream file;
@@ -499,7 +552,7 @@ namespace CppCLRWinformsProjekt {
 		if (file.is_open()) {
 			//MessageBox::Show("Dosya acildi");
 			file >> Dim >> w >> h >> num;
-			textBox1->Text += "Dimension: " + Convert::ToString(Dim) + "- Width: " + Convert::ToString(w) + " - Height: " + Convert::ToString(h) + " - Number of Class: " + Convert::ToString(num) + "\r\n";
+			//textBox1->Text += "Dimension: " + Convert::ToString(Dim) + "- Width: " + Convert::ToString(w) + " - Height: " + Convert::ToString(h) + " - Number of Class: " + Convert::ToString(num) + "\r\n";
 			// Set network values
 			class_count = num;
 			inputDim = Dim;
@@ -509,7 +562,7 @@ namespace CppCLRWinformsProjekt {
 			float* x = new float[inputDim];
 			while (!file.eof())
 			{
-				if (numSample == 0) { //ilk örnek için sadece
+				if (numSample == 0) { //ilk Ã¶rnek iÃ§in sadece
 					numSample = 1;
 					Samples = new float[inputDim]; targets = new float[numSample];
 					for (int i = 0; i < inputDim; i++)
@@ -531,10 +584,9 @@ namespace CppCLRWinformsProjekt {
 			delete[]x;
 			file.close();
 			for (int i = 0; i < numSample; i++) {
-				draw_sample(Samples[i * inputDim] + w, h - Samples[i * inputDim + 1], targets[i]);
-				for (int j = 0; j < inputDim; j++)
-					textBox1->Text += Convert::ToString(Samples[i * inputDim + j]) + " ";
-				textBox1->Text += Convert::ToString(targets[i]) + "\r\n";
+				draw_sample(pictureBox1->CreateGraphics(), Samples[i * inputDim] + w, h - Samples[i * inputDim + 1], targets[i]);				//for (int j = 0; j < inputDim; j++) 
+				//textBox1->Text += Convert::ToString(Samples[i * inputDim + j]) + " ";
+				//textBox1->Text += Convert::ToString(targets[i]) + "\r\n";
 			}
 			//draw_sample(temp_x, temp_y, label);
 			label3->Text = "Samples Count: " + System::Convert::ToString(numSample);
@@ -550,7 +602,7 @@ namespace CppCLRWinformsProjekt {
 			inputDim = Dim;
 			Weights = new float[class_count * inputDim];
 			bias = new float[class_count];
-			textBox1->Text += "Layer: " + Convert::ToString(Layer) + " Dimension: " + Convert::ToString(Dim) + " numClass:" + Convert::ToString(num) + "\r\n";
+			//textBox1->Text += "Layer: " + Convert::ToString(Layer) + " Dimension: " + Convert::ToString(Dim) + " numClass:" + Convert::ToString(num) + "\r\n";
 			while (!file.eof())
 			{
 				for (int i = 0; i < class_count; i++)
@@ -566,12 +618,12 @@ namespace CppCLRWinformsProjekt {
 	private: System::Void saveDataToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
 		if (numSample != 0) {
 			char** c = new char* [2];
-			// Veri Kümesi yazýlacak
+			// Veri KÃ¼mesi yazÄ±lacak
 			c[0] = "../Data/Samples.txt";
 			c[1] = "../Data/weights.txt";
 			std::ofstream ofs(c[0]);
 			if (!ofs.bad()) {
-				// Width,  Height, number of Class, data+label
+				// Width,Â  Height, number of Class, data+label
 				ofs << inputDim << " " << pictureBox1->Width / 2 << " " << pictureBox1->Height / 2 << " " << class_count << std::endl;
 				for (int i = 0; i < numSample; i++) {
 					for (int d = 0; d < inputDim; d++)
@@ -597,13 +649,16 @@ namespace CppCLRWinformsProjekt {
 		}
 		else MessageBox::Show("At least one sample should be given");
 	}//Save_Data
-	private: System::Void testingToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
+	
+     private: System::Void testingToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
 		if (Weights == nullptr) return;
 
 		Bitmap^ surface = gcnew Bitmap(pictureBox1->Width, pictureBox1->Height);
+		Graphics^ g = Graphics::FromImage(surface);
 		int cx = pictureBox1->Width / 2;
 		int cy = pictureBox1->Height / 2;
 
+		// BÃ¶lgeleri boya
 		for (int y = 0; y < pictureBox1->Height; y += 4) {
 			for (int x = 0; x < pictureBox1->Width; x += 4) {
 				float inputX = (float)(x - cx);
@@ -624,10 +679,13 @@ namespace CppCLRWinformsProjekt {
 				}
 
 				Color col;
-				if (winner == 0) col = Color::FromArgb(50, 255, 0, 0);
-				else if (winner == 1) col = Color::FromArgb(50, 0, 0, 255);
-				else if (winner == 2) col = Color::FromArgb(50, 0, 255, 0);
-				else col = Color::FromArgb(50, 255, 165, 0);
+				if (winner == 0) col = Color::FromArgb(50, 0, 0, 0);       
+				else if (winner == 1) col = Color::FromArgb(50, 255, 0, 0); 
+				else if (winner == 2) col = Color::FromArgb(50, 0, 0, 255); 
+				else if (winner == 3) col = Color::FromArgb(50, 0, 255, 0);
+				else if (winner == 4) col = Color::FromArgb(50, 255, 255, 0); 
+				else if (winner == 5) col = Color::FromArgb(50, 255, 165, 0); 
+				else col = Color::FromArgb(50, 154, 205, 50);                 
 
 				for (int i = 0; i < 4; i++)
 					for (int j = 0; j < 4; j++)
@@ -635,21 +693,30 @@ namespace CppCLRWinformsProjekt {
 							surface->SetPixel(x + i, y + j, col);
 			}
 		}
-		pictureBox1->Image = surface;
 
-		Graphics^ g = Graphics::FromImage(surface);
+		// Eksenleri Ã§iz
+		Pen^ axisPen = gcnew Pen(Color::Black, 2);
+		g->DrawLine(axisPen, cx, 0, cx, pictureBox1->Height);
+		g->DrawLine(axisPen, 0, cy, pictureBox1->Width, cy);
+
+		// NoktalarÄ± Ã§iz
 		for (int i = 0; i < numSample; i++) {
 			Pen^ p;
 			int t = (int)targets[i];
+
 			if (t == 0) p = gcnew Pen(Color::Red, 5);
 			else if (t == 1) p = gcnew Pen(Color::Blue, 5);
 			else if (t == 2) p = gcnew Pen(Color::Green, 5);
-			else p = gcnew Pen(Color::Orange, 5);
+			else if (t == 3) p = gcnew Pen(Color::Orange, 5);
+			else if (t == 4) p = gcnew Pen(Color::Purple, 5);
+			else if (t == 5) p = gcnew Pen(Color::Pink, 5);
+			else p = gcnew Pen(Color::Brown, 5);
 
 			int px = (int)Samples[i * inputDim] + cx;
 			int py = cy - (int)Samples[i * inputDim + 1];
-			g->DrawEllipse(p, px - 3, py - 3, 6, 6);
+			draw_sample(g, px, py, (int)targets[i]);
 		}
+
 		pictureBox1->Image = surface;
 	}
 	private: System::Void trainingToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
@@ -665,20 +732,25 @@ namespace CppCLRWinformsProjekt {
 		for (int i = 0; i < class_count * inputDim; i++) Weights[i] = ((float)rand() / RAND_MAX) - 0.5f;
 		for (int i = 0; i < class_count; i++) bias[i] = ((float)rand() / RAND_MAX) - 0.5f;
 
-		float lrn_rate = 0.05f;
-		int max_epoch = 2000;
+		float lrn_rate = 0.01f;
+		int max_epoch = 50000;
 		int epoch = 0;
 		bool error = true;
 
-		//eðitim döngüsü
+		if (errorHistory != nullptr) delete[] errorHistory;
+		errorHistory = new float[max_epoch];
+		errorHistoryCount = 0;
+
+		//eÄŸitim dÃ¶ngÃ¼sÃ¼
 		while (error && epoch < max_epoch) {
-			error = false;
+			error = false; 
+			float total_epoch_error = 0;
 			for (int k = 0; k < numSample; k++) {
 				int target = (int)targets[k];
 				for (int c = 0; c < class_count; c++) {
 					float net = 0;
 					for (int d = 0; d < inputDim; d++)
-						net += Weights[c * inputDim + d] * Samples[k * inputDim + d];
+						net += Weights[c * inputDim + d] * Samples[k * inputDim + d]; // y = w1x1 + w2x2 + b = 0
 					net += bias[c];
 
 					float desired = (c == target) ? 1.0f : -1.0f;
@@ -687,14 +759,17 @@ namespace CppCLRWinformsProjekt {
 					if (desired != out) {
 						float err = desired - out;
 						for (int d = 0; d < inputDim; d++)
-							Weights[c * inputDim + d] += lrn_rate * err * Samples[k * inputDim + d];
-						bias[c] += lrn_rate * err;
+							Weights[c * inputDim + d] += lrn_rate * err * Samples[k * inputDim + d]; //wyeni = weski + lr * error * x
+						bias[c] += lrn_rate * err;   //byeni = beski + lr * error
 						error = true;
-					}								
+						total_epoch_error += fabs(err);  //error toplamÄ± +2 ya da -2 olabilir o yÃ¼zden mutlak deÄŸer alÄ±yorum. 
+					}
 				}
 			}
+			errorHistory[epoch] = total_epoch_error / (float)(numSample * class_count);  //tÃ¼m hatalar / bir epochta yapÄ±lan toplam iÅŸlem sayÄ±sÄ±
 			epoch++;
 		}
+		errorHistoryCount = epoch;  //DrawErrorChartta kullanÄ±lmak Ã¼zere hafÄ±zaya kaydediyoruz, gerekli epoch sayÄ±sÄ±nÄ± hafÄ±zada tutuyor.
 
 		Bitmap^ surface = gcnew Bitmap(pictureBox1->Width, pictureBox1->Height);
 		Graphics^ g = Graphics::FromImage(surface);
@@ -707,26 +782,29 @@ namespace CppCLRWinformsProjekt {
 
 		for (int c = 0; c < class_count; c++) {
 			Pen^ p;
-			if (c == 0) p = gcnew Pen(Color::Red, 2);
-			else if (c == 1) p = gcnew Pen(Color::Blue, 2);
-			else if (c == 2) p = gcnew Pen(Color::Green, 2);
-			else p = gcnew Pen(Color::Orange, 2);
+			if (c == 0) p = gcnew Pen(Color::Black, 2);          
+			else if (c == 1) p = gcnew Pen(Color::Red, 2);       
+			else if (c == 2) p = gcnew Pen(Color::Blue, 2);     
+			else if (c == 3) p = gcnew Pen(Color::Green, 2);    
+			else if (c == 4) p = gcnew Pen(Color::Yellow, 2);   
+			else if (c == 5) p = gcnew Pen(Color::Orange, 2);   
+			else p = gcnew Pen(Color::YellowGreen, 2);           
 
 			float w0 = Weights[c * inputDim];
 			float w1 = Weights[c * inputDim + 1];
 			float b = bias[c];
 
-			// HATA BURADAYDI - TEMÝZLENDÝ
-			if (System::Math::Abs(w1) > 0.001) {
-				float x1 = -cx;
+			if (System::Math::Abs(w1) > 0.001)  //sÄ±fÄ±ra bÃ¶lme hatasÄ±nÄ± Ã¶nle
+			{
+				float x1 = -cx;  //ekranÄ±n en sol ucu 
 				float y1 = -(w0 * x1 + b) / w1;
-				float x2 = cx;
+				float x2 = cx;  //ekranÄ±n en saÄŸ ucu 
 				float y2 = -(w0 * x2 + b) / w1;
-				g->DrawLine(p, (int)(x1 + cx), (int)(cy - y1), (int)(x2 + cx), (int)(cy - y2));
+				g->DrawLine(p, (int)(x1 + cx), (int)(cy - y1), (int)(x2 + cx), (int)(cy - y2));  //Ã§izgiyi Ã§iz
 			}
 		}
 
-		for (int i = 0; i < numSample; i++) {
+		for (int i = 0; i < numSample; i++) { // HafÄ±zadaki tÃ¼m kayÄ±tlÄ± Ã¶rnekleri tekrar Ã§iz, Ã§izgi noktalarÄ±n Ã¼stÃ¼nde kalmasÄ±n diye.
 			Pen^ p;
 			int t = (int)targets[i];
 			if (t == 0) p = gcnew Pen(Color::Red, 5);
@@ -736,48 +814,81 @@ namespace CppCLRWinformsProjekt {
 
 			int px = (int)Samples[i * inputDim] + cx;
 			int py = cy - (int)Samples[i * inputDim + 1];
-			g->DrawEllipse(p, px - 3, py - 3, 6, 6);
+			draw_sample(g, px, py, (int)targets[i]);
+
 		}
 		pictureBox1->Image = surface;
-		MessageBox::Show("Eðitim Bitti! Epoch: " + epoch);
+
+		// Hata grafiÄŸini Ã§iz
+		DrawErrorChart();
+
+		MessageBox::Show("Egitim Bitti! Epoch: " + epoch);
 	}
 	private: System::Void regressionToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
-		if (numSample < 2) {
-			MessageBox::Show("Regresyon için en az 2 nokta gerekli!");
-			return;
+	// EÄŸer aÄŸ kurulmadÄ±ysa Ã¶nce uyar
+		if (class_count == 0) {
+			class_count = Convert::ToInt32(ClassCountBox->Text); 
 		}
 
-		// HATA VEREN KISIM BURASIYDI, DÜZELTÝLMÝÞ HALÝ:
-		float* x_data = new float[numSample];
-		float* y_data = new float[numSample];
+		
+		if (class_count != 1) {
+			MessageBox::Show("Hata: Regresyon iÅŸlemi sadece 'SÄ±nÄ±f SayÄ±sÄ±' 1 olduÄŸunda yapÄ±labilir.\nLÃ¼tfen SÄ±nÄ±f SayÄ±sÄ±nÄ± 1 yapÄ±p 'Network Setting' butonuna basÄ±nÄ±z.");
+			return; 
+		}
 
-		float scaleX = pictureBox1->Width / 2.0f;
+
+		if (numSample < 2) {
+			MessageBox::Show("Regresyon iÃ§in en az 2 nokta gerekli!");
+			return;
+		}
+		 // regresyon denklemimiz: i y = wx + b
+		float* x_data = new float[numSample];    // S[0] misal = x1 tutuyor , x dizisini tutanlar iÃ§in ayrÄ± bir pointer tanÄ±mlayalÄ±m
+		float* y_data = new float[numSample];    // s[1] misal = y1 tutuyor , y dizisini tutanlar iÃ§in ayrÄ± bir pointer tanÄ±mlayalÄ±m
+
+		float scaleX = pictureBox1->Width / 2.0f; // normalize etmek iÃ§in Ã¶lÃ§ek faktÃ¶rleri
 		float scaleY = pictureBox1->Height / 2.0f;
 
 		for (int i = 0; i < numSample; i++) {
-			x_data[i] = Samples[i * inputDim] / scaleX;
+			x_data[i] = Samples[i * inputDim] / scaleX;  //normalizasyon iÅŸlemi ile [-1,1] aralÄ±ÄŸÄ±na getiriyoruz
 			y_data[i] = Samples[i * inputDim + 1] / scaleY;
 		}
 
-		float w_reg = ((float)rand() / RAND_MAX) - 0.5f;
-		float b_reg = ((float)rand() / RAND_MAX) - 0.5f;
+		//ilk tahmin blogunu yazayÄ±m: 
+		float w_reg = ((float)rand() / RAND_MAX) - 0.5f;  //w_reg, b_reg iÃ§in rastgele baÅŸlangÄ±c degerleri  rand() --> 32k ya kadar rastgele bi sayÄ± atamasÄ± yapÄ±lÄ±r , 0.5 -0.5 arasÄ± bir deÄŸer verilir.
+		float b_reg = ((float)rand() / RAND_MAX) - 0.5f;  // hep pozitif cÄ±kmasÄ±n diye -0.5f ile cÄ±karttÄ±m.  
 
 		float learning_rate = 0.05f;
 		int max_epoch = 2000;
 		float total_err;
 		int epoch = 0;
+		float mse;
+
+		if (errorHistory != nullptr) delete[] errorHistory;
+		errorHistory = new float[max_epoch];
+		errorHistoryCount = 0;
 
 		do {
+			mse = 0.0f;
 			total_err = 0.0f;
 			for (int k = 0; k < numSample; k++) {
 				float prediction = w_reg * x_data[k] + b_reg;
-				float err = y_data[k] - prediction;
-				w_reg += learning_rate * err * x_data[k];
-				b_reg += learning_rate * err;
-				total_err += 0.5f * err * err;
+				float err = y_data[k] - prediction; //Hataya gÃ¶re yukarÄ± ya da aÅŸaÄŸÄ± incez.
+				w_reg += learning_rate * err * x_data[k];  //Ã§izgi aÃ§Ä±sÄ±nÄ± gÃ¼ncelleyelim
+				b_reg += learning_rate * err;  // Ã‡izgiyi komple yukarÄ± veya aÅŸaÄŸÄ± taÅŸÄ±.
+
+				mse += err * err;
+
+				total_err += 0.5f * err * err; 
 			}
+			// Epoch baÅŸÄ±na ortalama MSE
+			mse = mse / (2.0f * numSample);  // MSE = (1/2n) * Î£(errorÂ²)
+			// HatayÄ± kaydet
+			errorHistory[epoch] = mse;
 			epoch++;
 		} while (total_err > 0.0001f && epoch < max_epoch);
+
+		errorHistoryCount = epoch;  
+
 
 		Bitmap^ surface = gcnew Bitmap(pictureBox1->Width, pictureBox1->Height);
 		Graphics^ g = Graphics::FromImage(surface);
@@ -803,14 +914,23 @@ namespace CppCLRWinformsProjekt {
 			Pen^ p = gcnew Pen(Color::Blue, 3.0f);
 			int px = (int)Samples[i * inputDim] + cx;
 			int py = cy - (int)Samples[i * inputDim + 1];
-			g->DrawEllipse(p, px - 3, py - 3, 6, 6);
+			draw_sample(g, px, py, (int)targets[i]);
 		}
 		pictureBox1->Image = surface;
+
+
+		// 9. HATA GRAFÄ°ÄžÄ°NÄ° Ã‡Ä°Z
+		DrawErrorChart();
 
 		delete[] x_data;
 		delete[] y_data;
 
-		MessageBox::Show("Regresyon Tamamlandý!\nEpoch: " + epoch);
+
+		// 10. SONUCU BÄ°LDÄ°R
+		MessageBox::Show("Regresyon TamamlandÄ±!\nEpoch: " + epoch +
+			"\nSon ort error: " + mse.ToString("F6") +
+			"\nw = " + w_reg.ToString("F4") +
+			"\nb = " + b_reg.ToString("F4"));
 	}
 	private: System::Void pictureBox1_Click(System::Object^ sender, System::EventArgs^ e) {
 	}

@@ -56,7 +56,7 @@ namespace CppCLRWinformsProjekt {
 	private: System::Windows::Forms::ToolStripMenuItem^ testingToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ regressionToolStripMenuItem;
 	private: System::Windows::Forms::OpenFileDialog^ openFileDialog1;
-	private: System::Windows::Forms::TextBox^ textBox1;
+
 	private: System::Windows::Forms::SaveFileDialog^ saveFileDialog1;
 
 	private:
@@ -66,6 +66,8 @@ namespace CppCLRWinformsProjekt {
 		float* targets = nullptr;
 		float* Weights = nullptr;
 		float* bias = nullptr;
+	private: System::Windows::Forms::PictureBox^ chartBox;
+
 
 		System::ComponentModel::Container^ components;
 
@@ -90,12 +92,13 @@ namespace CppCLRWinformsProjekt {
 			this->testingToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->regressionToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->openFileDialog1 = (gcnew System::Windows::Forms::OpenFileDialog());
-			this->textBox1 = (gcnew System::Windows::Forms::TextBox());
 			this->saveFileDialog1 = (gcnew System::Windows::Forms::SaveFileDialog());
+			this->chartBox = (gcnew System::Windows::Forms::PictureBox());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->BeginInit();
 			this->groupBox1->SuspendLayout();
 			this->groupBox2->SuspendLayout();
 			this->menuStrip1->SuspendLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->chartBox))->BeginInit();
 			this->SuspendLayout();
 			// 
 			// pictureBox1
@@ -187,7 +190,8 @@ namespace CppCLRWinformsProjekt {
 			// 
 			this->ClassNoBox->FormattingEnabled = true;
 			this->ClassNoBox->Items->AddRange(gcnew cli::array< System::Object^  >(9) {
-				L"1", L"2", L"3", L"4", L"5", L"6", L"7", L"8", L"9"
+				L"1", L"2", L"3", L"4", L"5", L"6", L"7", L"8",
+					L"9"
 			});
 			this->ClassNoBox->Location = System::Drawing::Point(9, 25);
 			this->ClassNoBox->Margin = System::Windows::Forms::Padding(4);
@@ -199,12 +203,13 @@ namespace CppCLRWinformsProjekt {
 			// label3
 			// 
 			this->label3->AutoSize = true;
-			this->label3->Location = System::Drawing::Point(1168, 326);
+			this->label3->Location = System::Drawing::Point(1156, 332);
 			this->label3->Margin = System::Windows::Forms::Padding(4, 0, 4, 0);
 			this->label3->Name = L"label3";
 			this->label3->Size = System::Drawing::Size(44, 16);
 			this->label3->TabIndex = 3;
 			this->label3->Text = L"label3";
+			this->label3->Click += gcnew System::EventHandler(this, &Form1::label3_Click_1);
 			// 
 			// menuStrip1
 			// 
@@ -247,8 +252,7 @@ namespace CppCLRWinformsProjekt {
 			// 
 			this->processToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(3) {
 				this->trainingToolStripMenuItem,
-					this->testingToolStripMenuItem,
-					this->regressionToolStripMenuItem
+					this->testingToolStripMenuItem, this->regressionToolStripMenuItem
 			});
 			this->processToolStripMenuItem->Name = L"processToolStripMenuItem";
 			this->processToolStripMenuItem->Size = System::Drawing::Size(72, 24);
@@ -257,21 +261,21 @@ namespace CppCLRWinformsProjekt {
 			// trainingToolStripMenuItem
 			// 
 			this->trainingToolStripMenuItem->Name = L"trainingToolStripMenuItem";
-			this->trainingToolStripMenuItem->Size = System::Drawing::Size(164, 26);
+			this->trainingToolStripMenuItem->Size = System::Drawing::Size(224, 26);
 			this->trainingToolStripMenuItem->Text = L"Training";
 			this->trainingToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::trainingToolStripMenuItem_Click);
 			// 
 			// testingToolStripMenuItem
 			// 
 			this->testingToolStripMenuItem->Name = L"testingToolStripMenuItem";
-			this->testingToolStripMenuItem->Size = System::Drawing::Size(164, 26);
+			this->testingToolStripMenuItem->Size = System::Drawing::Size(224, 26);
 			this->testingToolStripMenuItem->Text = L"Testing";
 			this->testingToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::testingToolStripMenuItem_Click);
 			// 
 			// regressionToolStripMenuItem
 			// 
 			this->regressionToolStripMenuItem->Name = L"regressionToolStripMenuItem";
-			this->regressionToolStripMenuItem->Size = System::Drawing::Size(164, 26);
+			this->regressionToolStripMenuItem->Size = System::Drawing::Size(224, 26);
 			this->regressionToolStripMenuItem->Text = L"Regression";
 			this->regressionToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::regressionToolStripMenuItem_Click);
 			// 
@@ -279,21 +283,20 @@ namespace CppCLRWinformsProjekt {
 			// 
 			this->openFileDialog1->FileName = L"openFileDialog1";
 			// 
-			// textBox1
+			// chartBox
 			// 
-			this->textBox1->Location = System::Drawing::Point(1159, 368);
-			this->textBox1->Margin = System::Windows::Forms::Padding(4);
-			this->textBox1->Multiline = true;
-			this->textBox1->Name = L"textBox1";
-			this->textBox1->Size = System::Drawing::Size(328, 347);
-			this->textBox1->TabIndex = 5;
+			this->chartBox->Location = System::Drawing::Point(1159, 360);
+			this->chartBox->Name = L"chartBox";
+			this->chartBox->Size = System::Drawing::Size(244, 285);
+			this->chartBox->TabIndex = 5;
+			this->chartBox->TabStop = false;
 			// 
 			// Form1
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(8, 16);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->ClientSize = System::Drawing::Size(1924, 779);
-			this->Controls->Add(this->textBox1);
+			this->Controls->Add(this->chartBox);
 			this->Controls->Add(this->label3);
 			this->Controls->Add(this->groupBox2);
 			this->Controls->Add(this->groupBox1);
@@ -310,8 +313,10 @@ namespace CppCLRWinformsProjekt {
 			this->groupBox2->PerformLayout();
 			this->menuStrip1->ResumeLayout(false);
 			this->menuStrip1->PerformLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->chartBox))->EndInit();
 			this->ResumeLayout(false);
 			this->PerformLayout();
+
 		}
 #pragma endregion
 
@@ -404,7 +409,7 @@ namespace CppCLRWinformsProjekt {
 		file.open(c[0]);
 		if (file.is_open()) {
 			file >> Dim >> w >> h >> num;
-			textBox1->Text += "Dimension: " + Convert::ToString(Dim) + "- Width: " + Convert::ToString(w) + " - Height: " + Convert::ToString(h) + " - Number of Class: " + Convert::ToString(num) + "\r\n";
+			//textBox1->Text += "Dimension: " + Convert::ToString(Dim) + "- Width: " + Convert::ToString(w) + " - Height: " + Convert::ToString(h) + " - Number of Class: " + Convert::ToString(num) + "\r\n";
 
 			class_count = num;
 			inputDim = Dim;
@@ -434,9 +439,9 @@ namespace CppCLRWinformsProjekt {
 			file.close();
 			for (int i = 0; i < numSample; i++) {
 				draw_sample(Samples[i * inputDim] + w, h - Samples[i * inputDim + 1], targets[i]);
-				for (int j = 0; j < inputDim; j++)
-					textBox1->Text += Convert::ToString(Samples[i * inputDim + j]) + " ";
-				textBox1->Text += Convert::ToString(targets[i]) + "\r\n";
+				//for (int j = 0; j < inputDim; j++)
+				//textBox1->Text += Convert::ToString(Samples[i * inputDim + j]) + " ";
+				//textBox1->Text += Convert::ToString(targets[i]) + "\r\n";
 			}
 			label3->Text = "Samples Count: " + System::Convert::ToString(numSample);
 			MessageBox::Show("Dosya basari ile okundu");
@@ -487,5 +492,9 @@ namespace CppCLRWinformsProjekt {
 	private: System::Void menuStrip1_ItemClicked(System::Object^ sender, System::Windows::Forms::ToolStripItemClickedEventArgs^ e) {}
 	private: System::Void textBox1_TextChanged(System::Object^ sender, System::EventArgs^ e) {}
 	private: System::Void saveFileDialog1_FileOk(System::Object^ sender, System::ComponentModel::CancelEventArgs^ e) {}
-	};
+	private: System::Void label3_Click_1(System::Object^ sender, System::EventArgs^ e) {
+	}
+private: System::Void textBox1_TextChanged_1(System::Object^ sender, System::EventArgs^ e) {
+}
+};
 }
