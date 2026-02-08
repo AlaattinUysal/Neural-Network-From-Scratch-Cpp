@@ -132,7 +132,7 @@ Projeyi kendi bilgisayarınızda çalıştırmak için:
 
 1.  **Repoyu Klonlayın:**
     ```bash
-    git clone [https://github.com/KullaniciAdin/RepoIsmi.git](https://github.com/KullaniciAdin/RepoIsmi.git)
+    git clone [https://github.com/AlaattinUysal/Neural-Network-From-Scratch-Cpp.git]
     ```
 2.  **Visual Studio ile Açın:**
     `CppCLR_WinformsProjekt.sln` dosyasını çalıştırın.
